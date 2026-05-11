@@ -1,5 +1,5 @@
 # Code Standards
-- Strict scope: NO unrequested features/premature optimization.
+- Strict scope: NO unasked features/premature optimization.
 - Edits: Use `replace_file_content` or `multi_replace_file_content`. NEVER `write_to_file` on existing files.
 - Diffs: Keep `TargetContent` minimal but unique. Never rewrite whole files.
 - Use existing abstractions/imports. No hallucinated utilities.
