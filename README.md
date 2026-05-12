@@ -7,20 +7,16 @@ The goal of this project is to maintain a core set of rules that can be programm
 ## Usage
 
 ```bash
-# Interactive menu (arrow keys to select)
-./bin/tool.sh
-
-# Generate specific agent rules
-./bin/tool.sh -a    # Antigravity only
-./bin/tool.sh -c    # Cursor only
+# Generate specific agent rules (output directory is mandatory)
+tool.sh -a .    # Antigravity only, current directory
+tool.sh -c .    # Cursor only, current directory
+tool.sh -A .    # All agents, current directory
 
 # Custom output directory
-./bin/tool.sh -o gen -a
+tool.sh -A gen  # Generate all in 'gen' directory
 ```
 
 ## Output Structure
 
 - **Cursor**: `.cursor/rules/**/*.mdc`
 - **Antigravity**: `.agents/rules/*.md`
-
-
