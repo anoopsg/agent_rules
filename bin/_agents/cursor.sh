@@ -1,27 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CORE_RULES_DIR="$1"
+RULES_ROOT_DIR="$1"
 BASE_DIR="${2:-.}"
 # If BASE_DIR is empty (passed as ""), default to .
 if [[ -z "$BASE_DIR" ]]; then
   BASE_DIR="."
 fi
 
-OUTPUT_DIR="$BASE_DIR/.cursor/rules/core"
+echo "Generating Cursor rules..."
 
-echo "Creating Cursor rules directory: $OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
-
-for rule_file in "$CORE_RULES_DIR"/*.md; do
-  if [[ -f "$rule_file" ]]; then
-    filename="$(basename "$rule_file" .md)"
-    output_file="$OUTPUT_DIR/${filename}.mdc"
-    
-    echo "Processing: $(basename "$rule_file") -> $output_file"
-    
-    cat "$rule_file" > "$output_file"
-  fi
+# Find all .md files in all subdirectories of rules/
+find "$RULES_ROOT_DIR" -name "*.md" | while read -r rule_file; do
+  # Get the relative path from the rules root
+  rel_path="${rule_file#$RULES_ROOT_DIR/}"
+  # Get the directory part
+  rel_dir="$(dirname "$rel_path")"
+  # Get the filename without extension
+  filename="$(basename "$rel_path" .md)"
+  
+  # Target directory in .cursor/rules/
+  target_dir="$BASE_DIR/.cursor/rules/$rel_dir"
+  mkdir -p "$target_dir"
+  
+  output_file="$target_dir/${filename}.mdc"
+  
+  echo "Processing: $rel_path -> $output_file"
+  cat "$rule_file" > "$output_file"
 done
 
 echo "Cursor rules generated in $OUTPUT_DIR"
