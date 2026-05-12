@@ -1,4 +1,4 @@
-# Agent Rules [WIP]
+# Agent Rules (Dart & Flutter) [WIP]
 
 A canonical repository for AI agent behavioral blueprints. This serves as the single source of truth for generic, high-performance agent rules optimized for token efficiency and technical precision.
 

@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CORE_RULES_DIR="$PROJECT_ROOT/rules/core"
+RULES_DIR="$PROJECT_ROOT/rules"
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
 GEN_CURSOR=false
@@ -32,12 +32,12 @@ EOF
 
 generate_antigravity() {
   echo "Generating Antigravity rules..."
-  bash "$SCRIPT_DIR/_agents/antigravity.sh" "$CORE_RULES_DIR" "$OUTPUT_DIR"
+  bash "$SCRIPT_DIR/_agents/antigravity.sh" "$RULES_DIR" "$OUTPUT_DIR"
 }
 
 generate_cursor() {
   echo "Generating Cursor rules..."
-  bash "$SCRIPT_DIR/_agents/cursor.sh" "$CORE_RULES_DIR" "$OUTPUT_DIR"
+  bash "$SCRIPT_DIR/_agents/cursor.sh" "$RULES_DIR" "$OUTPUT_DIR"
 }
 
 main() {
