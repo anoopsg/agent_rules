@@ -113,12 +113,12 @@ final class MyApiFailure extends Failure {
 ### 4.2 Implementation
 ```dart
 class MyRepository {
-  MyRepository({required ApiClient api}) : _api = api;
-  final ApiClient _api;
+  MyRepository({required MyService service}) : _service = service;
+  final MyService _service;
 
   Future<Result<UserProfile, Failure>> getProfile() async {
     try {
-      final response = await _api.getService<MyService>().getProfile();
+      final response = await _service.getProfile();
       if (response.isSuccessful) return Ok(response.body!);
       return Err(MyApiFailure(error: response.error));
     } catch (e) {
@@ -130,12 +130,14 @@ class MyRepository {
 
 ## 5. Riverpod Integration
 
-Provide the repository via a global provider.
+Provide the repository via a global provider. Obtain the required service 
+from the `apiClientProvider`.
 
 ```dart
 @Riverpod(keepAlive: true)
 MyRepository myRepository(Ref ref) {
-  return MyRepository(api: ref.watch(apiClientProvider));
+  final service = ref.watch(apiClientProvider).getService<MyService>();
+  return MyRepository(service: service);
 }
 ```
 
