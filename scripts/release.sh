@@ -36,6 +36,9 @@ PAYLOAD="$(
     bin/tool.sh \
     bin/_agents/antigravity.sh \
     bin/_agents/cursor.sh \
+    rules \
+    skills \
+    exclusive \
   | base64
 )"
 
