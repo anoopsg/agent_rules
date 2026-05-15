@@ -3,9 +3,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-RULES_DIR="$PROJECT_ROOT/rules"
-SKILLS_DIR="$PROJECT_ROOT/skills"
-EXCLUSIVE_DIR="$PROJECT_ROOT/exclusive"
+
+RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/rules}"
+SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/skills}"
+EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/exclusive}"
 
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
@@ -20,7 +21,7 @@ Agent Rules Generator
 A CLI tool to generate vendor-specific agent rules (Antigravity, Cursor) 
 from canonical core rules and skills stored in the repository.
 
-Usage: tool.sh [OPTIONS] <OUTPUT_DIR>
+Usage: agentx.sh [OPTIONS] <OUTPUT_DIR>
 
 Arguments:
   <OUTPUT_DIR>          The base directory where agent rules will be generated.
@@ -41,16 +42,16 @@ Options:
 
 Examples:
   # Generate Antigravity rules in the current directory
-  tool.sh -a .         
+  agentx.sh -a .         
 
   # Generate Cursor rules in the current directory
-  tool.sh -c .         
+  agentx.sh -c .         
 
   # Generate all rules including exclusive content in the 'gen' directory
-  tool.sh -A -e gen    
+  agentx.sh -A -e gen    
 
   # Generate both in current directory with verbose output
-  tool.sh -a -c -v .      
+  agentx.sh -a -c -v .      
 EOF
 }
 

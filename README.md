@@ -37,7 +37,7 @@ agent_rules/
 │           └── SKILL.md
 │
 ├── bin/
-│   ├── tool.sh               # Main CLI entrypoint
+│   ├── agentx.sh             # Main CLI entrypoint
 │   └── _agents/
 │       ├── antigravity.sh    # Antigravity generator
 │       └── cursor.sh         # Cursor generator
@@ -49,12 +49,12 @@ agent_rules/
 
 ## CLI Tool
 
-Use `bin/tool.sh` to compile rules and skills into agent-specific directories.
+Use `bin/agentx.sh` to compile rules and skills into agent-specific directories.
 
 ### Usage
 
 ```bash
-bin/tool.sh [OPTIONS] <OUTPUT_DIR>
+bin/agentx.sh [OPTIONS] <OUTPUT_DIR>
 ```
 
 `OUTPUT_DIR` is the base directory of your project. The tool creates the
@@ -75,17 +75,17 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 
 ```bash
 # Generate rules for a specific agent in the current directory
-bin/tool.sh -a .
-bin/tool.sh -c .
+bin/agentx.sh -a .
+bin/agentx.sh -c .
 
 # Generate for all agents in a custom output directory
-bin/tool.sh -A ~/my-project
+bin/agentx.sh -A ~/my-project
 
 # Include exclusive skills and rules
-bin/tool.sh -A --exclusive .
+bin/agentx.sh -A --exclusive .
 
 # Full verbose run for all agents with exclusive content
-bin/tool.sh -A -e -v .
+bin/agentx.sh -A -e -v .
 ```
 
 ---
