@@ -26,7 +26,7 @@ this structure:
 
 ### 2.1 Colors
 1. Use curated, HSL-tailored colors defined in `app_colors.dart`.
-2. Avoid hardcoded hex values in UI; always use `context.zColors`.
+2. Avoid hardcoded hex values in UI; always use `context.$.colors`.
 
 ### 2.2 Typography
 1. **Reuse**: Maximize reuse of existing styles in `AppTextTheme`.
@@ -35,10 +35,10 @@ this structure:
    ```dart
    Text(
      'Design Text',
-     style: context.zTextTheme.any.copyWith(
+     style: context.$.style.any.copyWith(
        fontSize: 18,
        fontWeight: FontWeight.bold,
-       color: context.zColors.primary,
+       color: context.$.colors.primary,
      ),
    )
    ```
@@ -53,14 +53,17 @@ this structure:
 1. **No Hardcoded Strings**: Never hardcode user-facing strings in the UI.
 2. **Translation Files**: Add strings to the appropriate domain section in the 
    i18n files (using `slang`).
-3. **Usage**: Access translations using `context.zTr` (e.g., 
-   `context.zTr.auth.login.title`).
+3. **Usage**: Access translations using `context.$.tr` (e.g., 
+   `context.$.tr.auth.login.title`).
 4. **Generation**: Run `melos run translate` after updating translation files.
 
 ## 3. Atomic Design & Widgets
 
 ### 3.1 Principles & Categorization
 Break the design into reusable components in `packages/app_ui/lib/widgets/`.
+
+- **Imports**: Always use the public entry point `package:app_ui/app_ui.dart` 
+  for all consumers of the UI kit. Avoid internal file imports.
 
 - **Categorization**: Place widgets in appropriate sub-folders (e.g., `buttons/`, 
   `inputs/`, `layout/`, `cards/`).
