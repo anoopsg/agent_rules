@@ -47,15 +47,34 @@ agent_rules/
 
 ---
 
+## Portable Installation
+
+To run without cloning the repository, a single-file portable executable is available as a [GitHub Release](https://github.com/anoopsg/agent_rules/releases) asset.
+
+This `agentx` binary is a self-extracting shell script that bundles the entire project (rules, skills, and logic). It is designed to be "download-and-run" with zero external dependencies.
+
+```bash
+# Download and make executable
+curl -L https://github.com/anoopsg/agent_rules/releases/latest/download/agentx -o agentx
+chmod +x agentx
+
+# Run directly
+./agentx -A .
+```
+
+---
+
 ## CLI Tool
 
-Use `bin/agentx.sh` to compile rules and skills into agent-specific directories.
+You can use either the source script (`bin/agentx.sh`) or the portable release asset (`agentx`). Both share the same CLI interface.
 
 ### Usage
 
 ```bash
-bin/agentx.sh [OPTIONS] <OUTPUT_DIR>
+agentx [OPTIONS] <OUTPUT_DIR>
 ```
+
+> Note: If using the source script, use `bin/agentx.sh`. If using the release asset, use `./agentx`.
 
 `OUTPUT_DIR` is the base directory of your project. The tool creates the
 appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
