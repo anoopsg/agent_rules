@@ -4,40 +4,82 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 RULES_DIR="$PROJECT_ROOT/rules"
+SKILLS_DIR="$PROJECT_ROOT/skills"
+EXCLUSIVE_DIR="$PROJECT_ROOT/exclusive"
+
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
 GEN_CURSOR=false
+GEN_EXCLUSIVE=false
+VERBOSE=false
 
 show_help() {
   cat <<EOF
 Agent Rules Generator
 
+A CLI tool to generate vendor-specific agent rules (Antigravity, Cursor) 
+from canonical core rules and skills stored in the repository.
+
 Usage: tool.sh [OPTIONS] <OUTPUT_DIR>
 
-Generate vendor-specific agent rules from canonical core rules.
+Arguments:
+  <OUTPUT_DIR>          The base directory where agent rules will be generated.
+                        For Antigravity, this creates <OUTPUT_DIR>/.agents/
+                        For Cursor, this creates <OUTPUT_DIR>/.cursor/
 
 Options:
-  -a, --antigravity    Generate Antigravity (.agents) rules
-  -c, --cursor         Generate Cursor (.cursor) rules
-  -A, --all            Generate all agent rules
-  -h, --help           Show this help message
+  -a, --antigravity     Generate Antigravity-specific rules (.agents directory).
+                        Includes auto-trigger configuration for core rules.
+  -c, --cursor          Generate Cursor-specific rules (.cursor directory).
+                        Converts markdown rules to .mdc format.
+  -e, --exclusive       Include exclusive rules and skills from the 
+                        exclusive/ directory. These are specialized 
+                        instructions that are not part of the core ruleset.
+  -A, --all             Generate rules for all supported agents.
+  -v, --verbose         Enable verbose output, showing every file processed.
+  -h, --help            Show this help message and exit.
 
 Examples:
-  tool.sh -a .         # Generate Antigravity rules in current directory
-  tool.sh -c .         # Generate Cursor rules in current directory
-  tool.sh -A gen       # Generate all rules in gen/ directory
-  tool.sh -a -c .      # Generate both in current directory
+  # Generate Antigravity rules in the current directory
+  tool.sh -a .         
+
+  # Generate Cursor rules in the current directory
+  tool.sh -c .         
+
+  # Generate all rules including exclusive content in the 'gen' directory
+  tool.sh -A -e gen    
+
+  # Generate both in current directory with verbose output
+  tool.sh -a -c -v .      
 EOF
 }
 
 generate_antigravity() {
   echo "Generating Antigravity rules..."
-  bash "$SCRIPT_DIR/_agents/antigravity.sh" "$RULES_DIR" "$OUTPUT_DIR"
+  local exclusive_path=""
+  if [ "$GEN_EXCLUSIVE" = true ]; then
+    exclusive_path="$EXCLUSIVE_DIR"
+  fi
+  bash "$SCRIPT_DIR/_agents/antigravity.sh" \
+    "$RULES_DIR" \
+    "$SKILLS_DIR" \
+    "$OUTPUT_DIR" \
+    "$exclusive_path" \
+    "$VERBOSE"
 }
 
 generate_cursor() {
   echo "Generating Cursor rules..."
-  bash "$SCRIPT_DIR/_agents/cursor.sh" "$RULES_DIR" "$OUTPUT_DIR"
+  local exclusive_path=""
+  if [ "$GEN_EXCLUSIVE" = true ]; then
+    exclusive_path="$EXCLUSIVE_DIR"
+  fi
+  bash "$SCRIPT_DIR/_agents/cursor.sh" \
+    "$RULES_DIR" \
+    "$SKILLS_DIR" \
+    "$OUTPUT_DIR" \
+    "$exclusive_path" \
+    "$VERBOSE"
 }
 
 main() {
@@ -51,6 +93,14 @@ main() {
         GEN_CURSOR=true
         shift
         ;;
+      -e|--exclusive)
+        GEN_EXCLUSIVE=true
+        shift
+        ;;
+      -v|--verbose)
+        VERBOSE=true
+        shift
+        ;;
       -A|--all)
         GEN_ANTIGRAVITY=true
         GEN_CURSOR=true
@@ -61,7 +111,7 @@ main() {
         exit 0
         ;;
       -*)
-        echo "Unknown option: $1"
+        echo "Error: Unknown option: $1"
         show_help
         exit 1
         ;;
@@ -80,13 +130,15 @@ main() {
   # Check if output directory is provided
   if [[ -z "$OUTPUT_DIR" ]]; then
     echo "Error: Output directory is mandatory."
+    echo ""
     show_help
     exit 1
   fi
 
   # If no agent was specified via flags, show help and exit
   if [ "$GEN_ANTIGRAVITY" = false ] && [ "$GEN_CURSOR" = false ]; then
-    echo "Error: No agent specified (-a, -c, or -A required)."
+    echo "Error: No agent specified. Use -a, -c, or -A."
+    echo ""
     show_help
     exit 1
   fi
@@ -99,7 +151,7 @@ main() {
     generate_cursor
   fi
 
-  echo "Done!"
+  echo "Successfully generated agent rules!"
 }
 
 main "$@"
