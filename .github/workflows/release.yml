@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags starting with v, e.g., v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build agentx executable
+        run: bash scripts/release.sh ${{ github.ref_name }}
+
+      - name: Upload artifact to Actions (Internal)
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentx-binary
+          path: dist/agentx
+
+      - name: Create Release and Attach Asset (Public)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/agentx
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

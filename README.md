@@ -1,8 +1,8 @@
-# Agent Rules [WIP]
+# Agent Rules & Skills [WIP]
 
 > A vendor-agnostic repository of AI agent behavioral blueprints for Dart & Flutter projects.
 
-Agent Rules is the single source of truth for expert-level agent configurations. It maintains a canonical set of rules and skills that can be programmatically compiled into vendor-specific configurations — keeping behavior consistent across all AI-assisted development environments.
+Agent Rules & Skills is the single source of truth for expert-level agent configurations. It maintains a canonical set of rules and skills that can be programmatically compiled into vendor-specific configurations — keeping behavior consistent across all AI-assisted development environments.
 
 ---
 
@@ -10,7 +10,7 @@ Agent Rules is the single source of truth for expert-level agent configurations.
 
 Different AI coding agents (Cursor, Antigravity, etc.) each have their own configuration formats. Managing them independently leads to drift and inconsistency. This project solves that by:
 
-- Authoring rules **once**, in a clean Markdown format
+- Authoring rules and skills **once**, in a clean Markdown format
 - Compiling them to agent-specific formats via a CLI tool
 - Separating **core** (always-on) content from **exclusive** (opt-in) content
 
@@ -49,7 +49,7 @@ agent_rules/
 
 ## CLI Tool
 
-Use `bin/tool.sh` to compile rules into agent-specific directories.
+Use `bin/tool.sh` to compile rules and skills into agent-specific directories.
 
 ### Usage
 
@@ -64,9 +64,9 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 
 | Flag | Long Form | Description |
 |---|---|---|
-| `-a` | `--antigravity` | Generate Antigravity rules (`.agents/`) |
-| `-c` | `--cursor` | Generate Cursor rules (`.cursor/`) |
-| `-A` | `--all` | Generate rules for all supported agents |
+| `-a` | `--antigravity` | Generate Antigravity rules & skills (`.agents/`) |
+| `-c` | `--cursor` | Generate Cursor rules & skills (`.cursor/`) |
+| `-A` | `--all` | Generate content for all supported agents |
 | `-e` | `--exclusive` | Include opt-in content from `exclusive/` |
 | `-v` | `--verbose` | Show detailed per-file processing logs |
 | `-h` | `--help` | Show help and exit |
