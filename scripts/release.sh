@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/release.sh
 #
-# Bundles bin/tool.sh and bin/_agents/* into a single self-extracting
+# Bundles bin/agentx.sh and bin/_agents/* into a single self-extracting
 # shell script suitable for GitHub Releases (no git clone required).
 #
 # Usage:
@@ -29,11 +29,11 @@ mkdir -p "$DIST_DIR"
 
 # ── 1. Pack the bin/ subtree into a base64-encoded tar.gz blob ─────────
 # We cd into the repo root so tar paths are relative to it, e.g.
-# bin/tool.sh, bin/_agents/antigravity.sh, bin/_agents/cursor.sh
+# bin/agentx.sh, bin/_agents/antigravity.sh, bin/_agents/cursor.sh
 PAYLOAD="$(
   cd "$REPO_ROOT"
   tar -czf - \
-    bin/tool.sh \
+    bin/agentx.sh \
     bin/_agents/antigravity.sh \
     bin/_agents/cursor.sh \
     rules \
@@ -46,7 +46,7 @@ PAYLOAD="$(
 # The stub:
 #   a) decodes the base64 payload into a temp dir
 #   b) makes the extracted scripts executable
-#   c) execs bin/tool.sh with the original arguments
+#   c) execs bin/agentx.sh with the original arguments
 cat > "$OUTPUT_FILE" << 'STUB_EOF'
 #!/usr/bin/env bash
 # agentx – self-extracting single-file executable
@@ -64,8 +64,8 @@ tail -n +"$_PAYLOAD_START" "$0" | base64 --decode | tar -xzf - -C "$_TMPDIR"
 # Make all extracted shell scripts executable
 find "$_TMPDIR/bin" -name "*.sh" -exec chmod +x {} \;
 
-# Hand off to tool.sh, forwarding all arguments
-exec "$_TMPDIR/bin/tool.sh" "$@"
+# Hand off to agentx.sh, forwarding all arguments
+exec "$_TMPDIR/bin/agentx.sh" "$@"
 
 # ── end of stub; payload follows ──────────────────────────────────────
 __PAYLOAD__
