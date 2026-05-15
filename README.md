@@ -1,4 +1,4 @@
-# Agent Rules
+# Agent Rules [WIP]
 
 > A vendor-agnostic repository of AI agent behavioral blueprints for Dart & Flutter projects.
 
