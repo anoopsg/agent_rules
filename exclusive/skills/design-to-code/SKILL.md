@@ -1,3 +1,11 @@
+---
+name: design-to-code
+description: >-
+  Convert a Figma design into Flutter UI using AppAssets, AppSpacing,
+  AppTextTheme, and the Yz widget kit. Use when implementing a screen
+  or component from a Figma reference, syncing design tokens, or
+  registering a new reusable widget in app_ui.
+---
 # Design-to-Code Skill
 
 This skill outlines the process for converting Figma designs into a structured, 
@@ -98,7 +106,7 @@ Break the design into reusable components in `packages/app_ui/lib/widgets/`.
 ## 4. Feature Implementation
 
 ### 4.1 Feature Setup
-Follow the [Feature Creation Skill](../create-future/SKILL.md) to set up the 
+Follow the [Feature Creation Skill](../create-feature/SKILL.md) to set up the 
 directory structure.
 - Complex features (like Auth) should have sub-folders for each page (e.g., 
   `auth/login/`).
@@ -109,7 +117,7 @@ directory structure.
 Implement the view for the target platform (e.g., mobile):
 - `login_view.dart` (Mobile)
 - If required later, implement `login_view_web.dart` (Web).
-- Refer to [Feature Creation Skill](../create-future/SKILL.md) for state binding and performance optimization (MemoizedView).
+- Refer to [Feature Creation Skill](../create-feature/SKILL.md) for state binding and performance optimization (MemoizedView).
 - Use `AppSpacing` and `AppAssets` consistently.
 
 ## 5. Workflow Summary
@@ -121,3 +129,6 @@ Implement the view for the target platform (e.g., mobile):
 3. **Check Widgets**: Verify `widgets/registry.md` for existing components.
 4. **Build UI Kit**: Implement missing atoms/molecules in `app_ui`.
 5. **Implement Feature**: Apply components to the feature's view layer.
+6. **Verify in Sandbox**: Run the [golden-sandbox](../../../skills/golden-sandbox/SKILL.md) 
+   workflow across the device/theme matrix before marking the task complete. 
+   Do not skip; UI parity with the design is verified by goldens, not by inspection.

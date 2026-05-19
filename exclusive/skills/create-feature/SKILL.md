@@ -1,3 +1,11 @@
+---
+name: create-feature
+description: >-
+  Scaffold a new feature in lib/src/features/ using the DDD-lite
+  architecture (state, view, page, bindings, ViewProps). Use when
+  adding a new screen, sub-domain, or routed feature, or when wiring
+  a feature into go_router.
+---
 # Feature Creation Skill
 
 This skill outlines the standard process for creating a new feature in the 
@@ -132,3 +140,20 @@ Add a static class to `lib/src/routes/routes.dart` and attach it to
 1. **Sub-domain level**: Export the notifier and the page.
 2. **Domain level**: Export `_self` and all sub-domain barrels.
 3. **Global level** (`features/features.dart`): Export all domain barrels.
+
+## 6. Tests (Mandatory)
+
+A feature is not complete without its tests. Per the [testable-code](../../../skills/testable-code/SKILL.md)
+skill matrix, ship at least:
+- **Notifier unit test** at `test/features/<f>/state/<f>_notifier_test.dart`
+  covering each state transition and error mapping.
+- **Widget test** at `test/features/<f>/view/<f>_view_test.dart` for
+  any interactive logic in the view.
+- **Golden test** at `test/goldens/features/<f>/<f>_view_golden_test.dart`
+  via [golden-sandbox](../../../skills/golden-sandbox/SKILL.md) for
+  visual coverage across the device matrix.
+- **Route smoke test** if the feature introduces a new route.
+
+Run the suite (`flutter test`) and the golden loop before reporting
+the task complete. The turn summary must include both the `tests:`
+and `goldens:` disclosure lines.

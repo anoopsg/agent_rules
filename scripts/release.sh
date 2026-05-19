@@ -36,9 +36,11 @@ PAYLOAD="$(
     bin/agentx.sh \
     bin/_agents/antigravity.sh \
     bin/_agents/cursor.sh \
+    bin/_agents/bootstrap.sh \
     rules \
     skills \
     exclusive \
+    templates \
   | base64
 )"
 

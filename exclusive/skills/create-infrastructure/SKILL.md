@@ -1,3 +1,11 @@
+---
+name: create-infrastructure
+description: >-
+  Create a new domain in lib/src/infrastructure/ with dart_mappable
+  models, Chopper services, repositories returning Result<T, Failure>,
+  and Riverpod wiring. Use when adding a new backend integration,
+  persisted domain, or API surface.
+---
 # Infrastructure Creation Skill
 
 This skill defines the process for creating a new domain in the 
@@ -150,3 +158,23 @@ sensitive data (tokens). Always use **`AppKeys`** for storage keys.
 final storage = ref.watch(storageClientProvider);
 await storage.write(AppKeys.settings, 'value');
 ```
+
+## 7. Tests (Mandatory)
+
+Per the [testable-code](../../../skills/testable-code/SKILL.md) skill,
+every infrastructure domain ships with three test files in the same change:
+
+- **Repository unit test** at `test/infrastructure/<d>/<d>_repository_test.dart`.
+  Mock the service. Cover success → `Ok`, network error → `Err(<NetworkFailure>)`,
+  parse error → `Err(<ParseFailure>)`, and each domain-specific failure code
+  registered in `error_codes.dart`.
+- **Service test** at `test/infrastructure/<d>/services/<s>_test.dart`.
+  Use a `MockClient` from `http`. Assert request method, path, headers,
+  and response body parsing.
+- **Model test** at `test/infrastructure/<d>/models/<m>_test.dart`.
+  Round-trip JSON via `dart_mappable` and assert equality across
+  `copyWith` mutations.
+
+Run `flutter test` and include the `tests:` disclosure line per
+[core/testability.md](../../../rules/core/testability.md) before
+reporting the task complete.

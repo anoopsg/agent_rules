@@ -1,3 +1,11 @@
+---
+name: create-client
+description: >-
+  Create a low-level client wrapper in lib/src/infrastructure/_clients/
+  around a third-party plugin or system API. Use when adding a new
+  client class, wiring its Riverpod provider, or registering it in the
+  clients barrel file.
+---
 # Client Creation Skill
 
 This skill defines the process for creating a new low-level client in the 
@@ -83,3 +91,18 @@ class MyRepository {
   final MyPluginClient _client;
 }
 ```
+
+## 6. Tests (Mandatory)
+
+Per the [testable-code](../../../skills/testable-code/SKILL.md) skill,
+ship a unit test alongside the client at
+`test/infrastructure/_clients/<c>_client_test.dart`. Mock the underlying
+plugin and assert:
+- The success path returns the documented value.
+- Each thrown error type is swallowed and returns the documented
+  sentinel (e.g. `false`, `null`, or an `Err`).
+- `developer.log` is called on failure with the expected name and error.
+
+Run `flutter test` and include the `tests:` disclosure line per
+[core/testability.md](../../../rules/core/testability.md) before
+reporting the task complete.

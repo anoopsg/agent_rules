@@ -7,11 +7,14 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/rules}"
 SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/skills}"
 EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/exclusive}"
+TEMPLATES_DIR="${TEMPLATES_DIR:-$PROJECT_ROOT/templates}"
 
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
 GEN_CURSOR=false
 GEN_EXCLUSIVE=false
+GEN_BOOTSTRAP=false
+AUTO_DEPS=true
 VERBOSE=false
 
 show_help() {
@@ -37,10 +40,22 @@ Options:
                         exclusive/ directory. These are specialized 
                         instructions that are not part of the core ruleset.
   -A, --all             Generate rules for all supported agents.
+  -B, --bootstrap       Emit bootstrap files (test/flutter_test_config.dart,
+                        .github/workflows/{tests,goldens}.yml, AGENTS.md,
+                        BOOTSTRAP.sh) AND attempt to install dev dependencies
+                        via flutter pub add. This is the zero-touch path:
+                        after one run, the consumer project is fully set up.
+                        Static files use skip-if-exists semantics so user
+                        customizations are preserved on re-runs.
+      --no-auto-deps    When -B is set, do NOT run flutter pub add. Emit
+                        BOOTSTRAP.sh only; the user (or agent) runs it later.
   -v, --verbose         Enable verbose output, showing every file processed.
   -h, --help            Show this help message and exit.
 
 Examples:
+  # Zero-touch full setup (recommended)
+  agentx.sh -A -e -B .
+
   # Generate Antigravity rules in the current directory
   agentx.sh -a .         
 
@@ -50,8 +65,8 @@ Examples:
   # Generate all rules including exclusive content in the 'gen' directory
   agentx.sh -A -e gen    
 
-  # Generate both in current directory with verbose output
-  agentx.sh -a -c -v .      
+  # Bootstrap without modifying pubspec.yaml
+  agentx.sh -A -e -B --no-auto-deps .
 EOF
 }
 
@@ -83,6 +98,14 @@ generate_cursor() {
     "$VERBOSE"
 }
 
+generate_bootstrap() {
+  bash "$SCRIPT_DIR/_agents/bootstrap.sh" \
+    "$TEMPLATES_DIR" \
+    "$OUTPUT_DIR" \
+    "$AUTO_DEPS" \
+    "$VERBOSE"
+}
+
 main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -96,6 +119,14 @@ main() {
         ;;
       -e|--exclusive)
         GEN_EXCLUSIVE=true
+        shift
+        ;;
+      -B|--bootstrap)
+        GEN_BOOTSTRAP=true
+        shift
+        ;;
+      --no-auto-deps)
+        AUTO_DEPS=false
         shift
         ;;
       -v|--verbose)
@@ -136,9 +167,10 @@ main() {
     exit 1
   fi
 
-  # If no agent was specified via flags, show help and exit
-  if [ "$GEN_ANTIGRAVITY" = false ] && [ "$GEN_CURSOR" = false ]; then
-    echo "Error: No agent specified. Use -a, -c, or -A."
+  # At least one of -a/-c/-A/-B must be specified.
+  if [ "$GEN_ANTIGRAVITY" = false ] && [ "$GEN_CURSOR" = false ] \
+     && [ "$GEN_BOOTSTRAP" = false ]; then
+    echo "Error: No action specified. Use -a, -c, -A, or -B."
     echo ""
     show_help
     exit 1
@@ -150,6 +182,9 @@ main() {
   fi
   if [ "$GEN_CURSOR" = true ]; then
     generate_cursor
+  fi
+  if [ "$GEN_BOOTSTRAP" = true ]; then
+    generate_bootstrap
   fi
 
   echo "Successfully generated agent rules!"
