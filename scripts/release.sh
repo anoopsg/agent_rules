@@ -19,7 +19,18 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="$REPO_ROOT/bin"
 DIST_DIR="$REPO_ROOT/dist"
 OUTPUT_FILE="$DIST_DIR/agentx"
-VERSION="${1:-dev}"
+VERSION="${1:-}"
+if [[ -z "$VERSION" ]]; then
+  # Try to get the latest tag matching v* from git
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    VERSION=$(git describe --tags --abbrev=0 2>/dev/null || \
+      git tag -l "v*" | sort -V | tail -n1 || echo "")
+  fi
+  # Fallback to dev if no tag is found
+  if [[ -z "$VERSION" ]]; then
+    VERSION="dev"
+  fi
+fi
 
 # Clean up version string (remove 'v' prefix if present for the echo)
 CLEAN_VERSION="${VERSION#v}"
@@ -28,9 +39,21 @@ echo "Building agentx v${CLEAN_VERSION} ..."
 mkdir -p "$DIST_DIR"
 
 # ── 1. Pack the bin/ and src/ directories into a base64-encoded blob ───
-# We cd into the repo root so tar paths are relative to it, e.g. bin/ and src/
+# We stage files in a temporary directory to inject the correct version.
+STAGE_DIR="$(mktemp -d)"
+trap 'rm -rf "$STAGE_DIR"' EXIT
+
+# Copy files to stage
+mkdir -p "$STAGE_DIR/bin"
+cp -R "$REPO_ROOT/src" "$STAGE_DIR/"
+cp -R "$REPO_ROOT/bin/"* "$STAGE_DIR/bin/"
+
+# Inject version into the staged agentx.sh
+sed "s/VERSION=\"dev\"/VERSION=\"${CLEAN_VERSION}\"/g" \
+  "$REPO_ROOT/bin/agentx.sh" > "$STAGE_DIR/bin/agentx.sh"
+
 PAYLOAD="$(
-  cd "$REPO_ROOT"
+  cd "$STAGE_DIR"
   tar -czf - \
     bin \
     src \
