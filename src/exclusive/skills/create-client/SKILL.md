@@ -1,3 +1,8 @@
+---
+name: create-client
+description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/_clients/ directory. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a service to the client barrel file.
+---
+
 # Client Creation Skill
 
 This skill defines the process for creating a new low-level client in the 

@@ -1,3 +1,8 @@
+---
+name: create-feature
+description: Creates new features or sub-features following the DDD-lite architecture with separated state, view, and page layers. Use when the user asks to create a new feature, implement a complex domain like Auth, or set up routing and bindings for a screen.
+---
+
 # Feature Creation Skill
 
 This skill outlines the standard process for creating a new feature in the 

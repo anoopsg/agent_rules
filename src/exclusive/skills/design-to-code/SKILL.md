@@ -1,3 +1,8 @@
+---
+name: design-to-code
+description: Converts Figma designs into structured Flutter code using atomic design principles, AppSpacing, AppAssets, and i18n. Use when the user asks to implement UI from designs, create reusable widgets in app_ui, or convert design tokens to code.
+---
+
 # Design-to-Code Skill
 
 This skill outlines the process for converting Figma designs into a structured, 
@@ -98,7 +103,7 @@ Break the design into reusable components in `packages/app_ui/lib/widgets/`.
 ## 4. Feature Implementation
 
 ### 4.1 Feature Setup
-Follow the [Feature Creation Skill](../create-future/SKILL.md) to set up the 
+Follow the [Feature Creation Skill](../create-feature/SKILL.md) to set up the 
 directory structure.
 - Complex features (like Auth) should have sub-folders for each page (e.g., 
   `auth/login/`).
@@ -109,7 +114,7 @@ directory structure.
 Implement the view for the target platform (e.g., mobile):
 - `login_view.dart` (Mobile)
 - If required later, implement `login_view_web.dart` (Web).
-- Refer to [Feature Creation Skill](../create-future/SKILL.md) for state binding and performance optimization (MemoizedView).
+- Refer to [Feature Creation Skill](../create-feature/SKILL.md) for state binding and performance optimization (MemoizedView).
 - Use `AppSpacing` and `AppAssets` consistently.
 
 ## 5. Workflow Summary
