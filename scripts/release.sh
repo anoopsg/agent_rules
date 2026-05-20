@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/release.sh
 #
-# Bundles bin/agentx.sh and bin/_agents/* into a single self-extracting
+# Bundles bin/ and src/ into a single self-extracting
 # shell script suitable for GitHub Releases (no git clone required).
 #
 # Usage:
@@ -27,18 +27,13 @@ echo "Building agentx v${CLEAN_VERSION} ..."
 
 mkdir -p "$DIST_DIR"
 
-# ── 1. Pack the bin/ subtree into a base64-encoded tar.gz blob ─────────
-# We cd into the repo root so tar paths are relative to it, e.g.
-# bin/agentx.sh, bin/_agents/antigravity.sh, bin/_agents/cursor.sh
+# ── 1. Pack the bin/ and src/ directories into a base64-encoded blob ───
+# We cd into the repo root so tar paths are relative to it, e.g. bin/ and src/
 PAYLOAD="$(
   cd "$REPO_ROOT"
   tar -czf - \
-    bin/agentx.sh \
-    bin/_agents/antigravity.sh \
-    bin/_agents/cursor.sh \
-    rules \
-    skills \
-    exclusive \
+    bin \
+    src \
   | base64
 )"
 
