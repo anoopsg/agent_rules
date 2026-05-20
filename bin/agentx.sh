@@ -37,7 +37,7 @@ Options:
                         exclusive/ directory. These are specialized 
                         instructions that are not part of the core ruleset.
   -A, --all             Generate rules for all supported agents.
-  -V, --version         Show the version of agentx and exit.
+  -v, --version         Show the version of agentx and exit.
   -h, --help            Show this help message and exit.
 
 Examples:
@@ -98,7 +98,7 @@ main() {
         GEN_CURSOR=true
         shift
         ;;
-      -V|--version)
+      -v|--version)
         if [[ "$VERSION" == "dev" ]]; then
           echo "agentx version is not available (running from source)."
         else
