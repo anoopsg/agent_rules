@@ -1,3 +1,8 @@
+---
+name: create-infrastructure
+description: Creates new domains in the infrastructure layer using dart_mappable for models, Chopper for networking, and Riverpod for repositories. Use when the user asks to create a repository, API service, data model, or set up new infrastructure components.
+---
+
 # Infrastructure Creation Skill
 
 This skill defines the process for creating a new domain in the 
