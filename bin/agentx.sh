@@ -8,6 +8,7 @@ RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/src/rules}"
 SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/src/skills}"
 EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/src/exclusive}"
 
+VERSION="dev"
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
 GEN_CURSOR=false
@@ -38,6 +39,7 @@ Options:
                         instructions that are not part of the core ruleset.
   -A, --all             Generate rules for all supported agents.
   -v, --verbose         Enable verbose output, showing every file processed.
+  -V, --version         Show the version of agentx and exit.
   -h, --help            Show this help message and exit.
 
 Examples:
@@ -106,6 +108,14 @@ main() {
         GEN_ANTIGRAVITY=true
         GEN_CURSOR=true
         shift
+        ;;
+      -V|--version)
+        if [[ "$VERSION" == "dev" ]]; then
+          echo "agentx version is not available (running from source)."
+        else
+          echo "agentx version v$VERSION"
+        fi
+        exit 0
         ;;
       -h|--help)
         show_help

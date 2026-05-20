@@ -67,7 +67,12 @@ chmod +x agentx
 
 ## CLI Tool
 
-You can use either the source script (`bin/agentx.sh`) or the portable release asset (`agentx`). Both share the same CLI interface.
+Both the source script (`bin/agentx.sh`) and the portable release asset
+(`agentx`) share the same CLI interface.
+
+> [!IMPORTANT]
+> For development/contribution, use the source script (`bin/agentx.sh`).
+> Otherwise, always use the released bundle single-file CLI (`agentx`).
 
 ### Usage
 
@@ -89,6 +94,7 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 | `-A` | `--all` | Generate content for all supported agents |
 | `-e` | `--exclusive` | Include opt-in content from `exclusive/` |
 | `-v` | `--verbose` | Show detailed per-file processing logs |
+| `-V` | `--version` | Show the version of agentx and exit |
 | `-h` | `--help` | Show help and exit |
 
 ### Examples
