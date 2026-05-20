@@ -5,8 +5,6 @@ RULES_ROOT_DIR="$1"
 SKILLS_ROOT_DIR="$2"
 BASE_DIR="${3:-.}"
 EXCLUSIVE_ROOT_DIR="${4:-}"
-VERBOSE="${5:-false}"
-
 # If BASE_DIR is empty (passed as ""), default to .
 if [[ -z "$BASE_DIR" ]]; then
   BASE_DIR="."
@@ -15,10 +13,6 @@ fi
 RULES_DIR="$BASE_DIR/.cursor/rules"
 SKILLS_DIR="$BASE_DIR/.cursor/skills"
 
-if [ "$VERBOSE" = true ]; then
-  echo "Target rules directory: $RULES_DIR"
-  echo "Target skills directory: $SKILLS_DIR"
-fi
 
 mkdir -p "$RULES_DIR"
 mkdir -p "$SKILLS_DIR"
@@ -43,9 +37,7 @@ process_rules() {
     
     output_file="$target_dir/${filename}.mdc"
     
-    if [ "$VERBOSE" = true ]; then
-      echo "  Processing rule: $rel_path -> $output_file"
-    fi
+
     cat "$rule_file" > "$output_file"
   done
 }
@@ -62,9 +54,7 @@ process_skills() {
     skill_name="$(basename "$(dirname "$skill_file")")"
     target_skill="$SKILLS_DIR/${skill_name}.md"
     
-    if [ "$VERBOSE" = true ]; then
-      echo "  Processing skill: $skill_name -> $target_skill"
-    fi
+
     cat "$skill_file" > "$target_skill"
   done
 }

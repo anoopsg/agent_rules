@@ -5,8 +5,6 @@ RULES_ROOT_DIR="$1"
 SKILLS_ROOT_DIR="$2"
 BASE_DIR="${3:-.}"
 EXCLUSIVE_ROOT_DIR="${4:-}"
-VERBOSE="${5:-false}"
-
 # If BASE_DIR is empty (passed as ""), default to .
 if [[ -z "$BASE_DIR" ]]; then
   BASE_DIR="."
@@ -15,10 +13,6 @@ fi
 RULES_DIR="$BASE_DIR/.agents/rules"
 SKILLS_DIR="$BASE_DIR/.agents/skills"
 
-if [ "$VERBOSE" = true ]; then
-  echo "Target rules directory: $RULES_DIR"
-  echo "Target skills directory: $SKILLS_DIR"
-fi
 
 mkdir -p "$RULES_DIR"
 mkdir -p "$SKILLS_DIR"
@@ -38,9 +32,7 @@ process_rules() {
     
     output_file="$RULES_DIR/$filename"
     
-    if [ "$VERBOSE" = true ]; then
-      echo "  Processing rule: $rel_path -> $output_file"
-    fi
+
     
     {
       if [ "$is_core" = true ] && [[ "$rel_path" == core/* ]]; then
@@ -66,9 +58,7 @@ process_skills() {
     skill_name="$(basename "$(dirname "$skill_file")")"
     target_skill="$SKILLS_DIR/${skill_name}.md"
     
-    if [ "$VERBOSE" = true ]; then
-      echo "  Copying skill: $skill_name -> $target_skill"
-    fi
+
     cat "$skill_file" > "$target_skill"
   done
 }
