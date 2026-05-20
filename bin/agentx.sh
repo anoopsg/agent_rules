@@ -13,7 +13,6 @@ OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
 GEN_CURSOR=false
 GEN_EXCLUSIVE=false
-VERBOSE=false
 
 show_help() {
   cat <<EOF
@@ -38,7 +37,6 @@ Options:
                         exclusive/ directory. These are specialized 
                         instructions that are not part of the core ruleset.
   -A, --all             Generate rules for all supported agents.
-  -v, --verbose         Enable verbose output, showing every file processed.
   -V, --version         Show the version of agentx and exit.
   -h, --help            Show this help message and exit.
 
@@ -51,9 +49,6 @@ Examples:
 
   # Generate all rules including exclusive content in the 'gen' directory
   agentx.sh -A -e gen    
-
-  # Generate both in current directory with verbose output
-  agentx.sh -a -c -v .      
 EOF
 }
 
@@ -67,8 +62,7 @@ generate_antigravity() {
     "$RULES_DIR" \
     "$SKILLS_DIR" \
     "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$VERBOSE"
+    "$exclusive_path"
 }
 
 generate_cursor() {
@@ -81,8 +75,7 @@ generate_cursor() {
     "$RULES_DIR" \
     "$SKILLS_DIR" \
     "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$VERBOSE"
+    "$exclusive_path"
 }
 
 main() {
@@ -98,10 +91,6 @@ main() {
         ;;
       -e|--exclusive)
         GEN_EXCLUSIVE=true
-        shift
-        ;;
-      -v|--verbose)
-        VERBOSE=true
         shift
         ;;
       -A|--all)

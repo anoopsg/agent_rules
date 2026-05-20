@@ -93,7 +93,6 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 | `-c` | `--cursor` | Generate Cursor rules & skills (`.cursor/`) |
 | `-A` | `--all` | Generate content for all supported agents |
 | `-e` | `--exclusive` | Include opt-in content from `exclusive/` |
-| `-v` | `--verbose` | Show detailed per-file processing logs |
 | `-V` | `--version` | Show the version of agentx and exit |
 | `-h` | `--help` | Show help and exit |
 
@@ -109,9 +108,6 @@ bin/agentx.sh -A ~/my-project
 
 # Include exclusive skills and rules
 bin/agentx.sh -A --exclusive .
-
-# Full verbose run for all agents with exclusive content
-bin/agentx.sh -A -e -v .
 ```
 
 ---
