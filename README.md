@@ -21,20 +21,21 @@ Different AI coding agents (Cursor, Antigravity, etc.) each have their own confi
 ```
 agent_rules/
 │
-├── rules/                    # Core rules — always included
-│   ├── core/                 # Fundamental agent behavior
-│   ├── flutter/              # Flutter-specific rules
-│   └── packages/             # Package-specific guidance
-│
-├── skills/                   # Core skills — always included
-│   └── <skill-name>/
-│       └── SKILL.md
-│
-├── exclusive/                # Opt-in content (Launchpad)
-│   ├── rules/                # Launchpad rules
-│   └── skills/               # Launchpad skills
-│       └── <skill-name>/
-│           └── SKILL.md
+├── src/                      # Source directory containing all rules & skills
+│   ├── rules/                # Core rules — always included
+│   │   ├── core/             # Fundamental agent behavior
+│   │   ├── flutter/          # Flutter-specific rules
+│   │   └── packages/         # Package-specific guidance
+│   │
+│   ├── skills/               # Core skills — always included
+│   │   └── <skill-name>/
+│   │       └── SKILL.md
+│   │
+│   └── exclusive/            # Opt-in content (Launchpad)
+│       ├── rules/            # Launchpad rules
+│       └── skills/           # Launchpad skills
+│           └── <skill-name>/
+│               └── SKILL.md
 │
 ├── bin/
 │   ├── agentx.sh             # Main CLI entrypoint
@@ -118,7 +119,7 @@ Rules and skills are compiled into the following output directories:
 | **Antigravity** | `.agents/rules/*.md` | `.agents/skills/*.md` |
 | **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/*.md` |
 
-> Core rules under `rules/core/` are automatically annotated with
+> Core rules under `src/rules/core/` are automatically annotated with
 > `trigger: always_on` in the Antigravity output.
 
 ---
@@ -127,11 +128,11 @@ Rules and skills are compiled into the following output directories:
 
 ### Rules
 
-Rules are plain Markdown files placed under `rules/` (core) or
-`exclusive/rules/` (Launchpad). Organize them into topic subdirectories.
+Rules are plain Markdown files placed under `src/rules/` (core) or
+`src/exclusive/rules/` (Launchpad). Organize them into topic subdirectories.
 
 ```
-rules/
+src/rules/
 └── flutter/
     └── performance.md   # A core rule document
 ```
@@ -142,11 +143,11 @@ Skills are directories containing a single `SKILL.md` file. The directory
 name becomes the skill identifier in the output.
 
 ```
-skills/
+src/skills/
 └── <skill-name>/
     └── SKILL.md         # Core skill instructions
 
-exclusive/skills/
+src/exclusive/skills/
 └── create-client/
     └── SKILL.md         # Launchpad skill
 ```
@@ -155,10 +156,10 @@ exclusive/skills/
 
 ## Exclusive Content (Launchpad)
 
-The `exclusive/` directory is reserved for content tailored specifically for Launchpad.
+The `src/exclusive/` directory is reserved for content tailored specifically for Launchpad.
 
 This includes:
-- **`exclusive/skills/`** — implementation patterns specific to the Launchpad architecture.
-- **`exclusive/rules/`** — behavioral rules that assume Launchpad conventions.
+- **`src/exclusive/skills/`** — implementation patterns specific to the Launchpad architecture.
+- **`src/exclusive/rules/`** — behavioral rules that assume Launchpad conventions.
 
 This content is opt-in via the `--exclusive` flag, allowing the repository to remain flexible for general Dart & Flutter projects while providing specialized support for Launchpad.

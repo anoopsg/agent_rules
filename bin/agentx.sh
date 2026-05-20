@@ -4,9 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/rules}"
-SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/skills}"
-EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/exclusive}"
+RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/src/rules}"
+SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/src/skills}"
+EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/src/exclusive}"
 
 OUTPUT_DIR=""
 GEN_ANTIGRAVITY=false
