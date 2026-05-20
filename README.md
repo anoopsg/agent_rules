@@ -93,7 +93,7 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 | `-c` | `--cursor` | Generate Cursor rules & skills (`.cursor/`) |
 | `-A` | `--all` | Generate content for all supported agents |
 | `-e` | `--exclusive` | Include opt-in content from `exclusive/` |
-| `-V` | `--version` | Show the version of agentx and exit |
+| `-v` | `--version` | Show the version of agentx and exit |
 | `-h` | `--help` | Show help and exit |
 
 ### Examples
