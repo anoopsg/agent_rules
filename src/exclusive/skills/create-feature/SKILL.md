@@ -94,6 +94,9 @@ class MyFeaturePage extends StatelessWidget {
 `ViewProps` separates **Data** (used for equality) from **Callbacks** 
 (ignored for equality).
 
+> [!IMPORTANT]
+> **CRITICAL RULE FOR AI**: NEVER include callback functions (like `VoidCallback`, `Function`, etc.) in the `equalityProperties` list of a `ViewProps` subclass. The base class has a runtime assertion that will crash the app if functions are included. **ONLY** include data fields.
+
 > [!CAUTION]
 > **STALE CLOSURES**: Because `MemoizedView` ignores callbacks in equality 
 > checks, your UI might hold a reference to an "old" closure. 
@@ -106,6 +109,7 @@ final class MyProps extends ViewProps {
   final String data;
   final VoidCallback onAction;
 
+  // CRITICAL: Only include data fields. Do NOT include functions/callbacks here!
   @override
   List<Object?> get equalityProperties => [data]; // Exclude onAction
 }
