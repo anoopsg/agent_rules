@@ -130,6 +130,48 @@ return viewBuilder(
 );
 ```
 
+### 3.3 Feature State & Notifiers
+
+Feature state and notifiers live in the `state/` directory of a feature.
+
+- **State Location**: Define the state class in the same file as the provider
+  or notifier. Do not create a separate file for the state class.
+- **Data Modeling**: Always use `dart_mappable` (`@MappableClass()`) for state
+  classes to get built-in immutability (`copyWith`) and equality.
+
+```dart
+import 'package:dart_mappable/dart_mappable.dart';
+import 'package:framework/framework.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'login_notifier.mapper.dart';
+part 'login_notifier.g.dart';
+
+/// Local form state tracking for the Auth flow.
+@MappableClass()
+class LoginState with LoginStateMappable implements FailureInterface {
+  const LoginState({this.isLoggingIn = false, this.failure});
+
+  factory LoginState.loading() => const LoginState(isLoggingIn: true);
+
+  final bool isLoggingIn;
+
+  @override
+  final Failure? failure;
+}
+
+@riverpod
+class LoginNotifier extends _$LoginNotifier {
+  @override
+  LoginState build() => const LoginState();
+
+  void login() {
+    state = LoginState.loading();
+    // Action logic here...
+  }
+}
+```
+
 ## 4. Routing
 
 Add a static class to `lib/src/routes/routes.dart` and attach it to 

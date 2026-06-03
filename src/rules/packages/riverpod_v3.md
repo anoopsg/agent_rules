@@ -9,3 +9,8 @@
 - Prefer `AsyncNotifier` for complex async state; `Notifier` for synchronous state.
 - Keep state immutable. Use `copyWith` for state updates.
 - Use `ref.onDispose` for cleaning up resources (controllers, timers).
+- State Location: Keep the state class in the same provider/notifier file. Do
+  not create a separate file for the state class.
+- Always use `dart_mappable` (`@MappableClass()`) for state classes. If
+  `dart_mappable` is not used in the codebase, use the package already found
+  in the codebase (e.g., Freezed/`@freezed`).
