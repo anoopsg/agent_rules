@@ -1,6 +1,6 @@
 ---
 name: create-feature
-description: Creates new features or sub-features following the DDD-lite architecture with separated state, view, and page layers. Use when the user asks to create a new feature, implement a complex domain like Auth, or set up routing and bindings for a screen.
+description: Use when asked to create a new feature or sub-feature following the DDD-lite architecture, or set up state, view, and page layers for a domain.
 ---
 
 # Feature Creation Skill
@@ -174,9 +174,9 @@ class LoginNotifier extends _$LoginNotifier {
 
 ## 4. Routing
 
-Add a static class to `lib/src/routes/routes.dart` and attach it to 
-`lib/src/routes/router.dart` in the appropriate group (`open`, 
-`unauthenticated`, or `authenticated`).
+Follow the [Routing Management Skill](manage-routes.md) to define the route
+class and register it in the appropriate group (`open`, `unauthenticated`,
+or `authenticated`).
 
 ## 5. Barrel Files (Exports)
 
