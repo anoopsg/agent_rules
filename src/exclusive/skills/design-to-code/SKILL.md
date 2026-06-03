@@ -1,6 +1,8 @@
 ---
 name: design-to-code
-description: Converts Figma designs into structured Flutter code using atomic design principles, AppSpacing, AppAssets, and i18n. Use when the user asks to implement UI from designs, create reusable widgets in app_ui, or convert design tokens to code.
+description: >
+  Outlines the process for converting Figma designs into a structured,
+  platform-aware Flutter implementation.
 ---
 
 # Design-to-Code Skill
@@ -64,57 +66,33 @@ this structure:
 
 ## 3. Atomic Design & Widgets
 
-### 3.1 Principles & Categorization
-Break the design into reusable components in `packages/app_ui/lib/widgets/`.
+Break the design into reusable components. Before creating anything:
 
-- **Imports**: Always use the public entry point `package:app_ui/app_ui.dart` 
-  for all consumers of the UI kit. Avoid internal file imports.
+1. **Check registry**: Verify `packages/app_ui/lib/widgets/registry.md` for
+   existing components.
+2. **Imports**: Always consume via `package:app_ui/app_ui.dart`. Avoid internal
+   file imports.
 
-- **Categorization**: Place widgets in appropriate sub-folders (e.g., `buttons/`, 
-  `inputs/`, `layout/`, `cards/`).
-- **Web-Only**: Web-specific widgets go in `widgets/web/<category>/`.
-- **No Helper Functions**: NEVER use methods to build UI (e.g., `Widget _buildFoo()`). 
-  If a widget is complex, split it into **private classes** (e.g., `_Foo`) 
-  within the same file.
-- **Configuration Models**: If a widget requires many parameters or has nested 
-  complex components, create a dedicated configuration model in the same file 
-  (e.g., `YzActionPanelModel` for `YzActionPanel`).
-- **Naming**: 
-  - Always prefix widget classes with `Yz` (e.g., `YzPrimaryButton`).
-  - Filenames use `snake_case` without the `yz_` prefix (e.g., `primary_button.dart`).
-  - If a web variant exists for a shared concept, use the `Web` suffix (e.g., `YzScaffoldWeb`).
-- **Externalize Text**: Never hardcode labels or hints inside `app_ui` widgets. 
-  Pass them as properties from the feature view.
-  ```dart
-  // GOOD: Label is passed from above
-  const YzPrimaryButton({required this.label, ...});
-
-  // BAD: Label is hardcoded inside the widget
-  Widget build(BuildContext context) => const Text('Submit');
-  ```
-
-### 3.2 Widget Registry (MANDATORY)
-1. **Lookup**: Before creating a widget, check `packages/app_ui/lib/widgets/registry.md`.
-2. **Register**: After creating a reusable widget, add it to the root `packages/app_ui/lib/widgets/registry.md` with:
-   - Name and description.
-   - Usage example.
-   - Design reference if applicable.
+> [!NOTE]
+> For widget implementation rules (naming, structure, exports, and registry
+> registration), follow the [UI Widget Creation Skill](create-ui-widget.md).
 
 ## 4. Feature Implementation
 
 ### 4.1 Feature Setup
-Follow the [Feature Creation Skill](../create-feature/SKILL.md) to set up the 
-directory structure.
-- Complex features (like Auth) should have sub-folders for each page (e.g., 
-  `auth/login/`).
-- **Permissions**: If the target feature folder does not exist, you **must** 
+Follow the [Feature Creation Skill](create-future.md) to set up the directory
+structure.
+- Complex features (like Auth) should have sub-folders for each page
+  (e.g., `auth/login/`).
+- **Permissions**: If the target feature folder does not exist, you **must**
   ask for user permission before creating the directory structure.
 
 ### 4.2 Building Views
 Implement the view for the target platform (e.g., mobile):
 - `login_view.dart` (Mobile)
 - If required later, implement `login_view_web.dart` (Web).
-- Refer to [Feature Creation Skill](../create-feature/SKILL.md) for state binding and performance optimization (MemoizedView).
+- Refer to [Feature Creation Skill](create-future.md) for state binding and
+  performance optimization (MemoizedView).
 - Use `AppSpacing` and `AppAssets` consistently.
 
 ## 5. Workflow Summary
