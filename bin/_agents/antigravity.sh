@@ -13,7 +13,6 @@ fi
 RULES_DIR="$BASE_DIR/.agents/rules"
 SKILLS_DIR="$BASE_DIR/.agents/skills"
 
-
 mkdir -p "$RULES_DIR"
 mkdir -p "$SKILLS_DIR"
 
@@ -31,9 +30,7 @@ process_rules() {
     filename="${rel_path//\//_}"
     
     output_file="$RULES_DIR/$filename"
-    
 
-    
     {
       if [ "$is_core" = true ] && [[ "$rel_path" == core/* ]]; then
         echo "---"
@@ -57,7 +54,6 @@ process_skills() {
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
     target_skill="$SKILLS_DIR/${skill_name}.md"
-    
 
     cat "$skill_file" > "$target_skill"
   done

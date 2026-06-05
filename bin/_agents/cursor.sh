@@ -13,7 +13,6 @@ fi
 RULES_DIR="$BASE_DIR/.cursor/rules"
 SKILLS_DIR="$BASE_DIR/.cursor/skills"
 
-
 mkdir -p "$RULES_DIR"
 mkdir -p "$SKILLS_DIR"
 
@@ -36,7 +35,6 @@ process_rules() {
     mkdir -p "$target_dir"
     
     output_file="$target_dir/${filename}.mdc"
-    
 
     cat "$rule_file" > "$output_file"
   done
@@ -53,7 +51,6 @@ process_skills() {
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
     target_skill="$SKILLS_DIR/${skill_name}.md"
-    
 
     cat "$skill_file" > "$target_skill"
   done
