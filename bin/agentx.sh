@@ -122,9 +122,21 @@ do_update() {
     exit 1
   fi
 
-  chmod +x "$tmp_bin"
+  # Read the remote version from the plain-text stub header.
+  # The release build embeds: # agentx-version: X.Y.Z
+  local new_version
+  new_version=$(
+    sed -n 's/^# agentx-version: *//p' "$tmp_bin"
+  ) || true
+
+  if [[ -n "$new_version" \
+    && "$new_version" == "$VERSION" ]]; then
+    echo "agentx is already up-to-date (v$VERSION)."
+    exit 0
+  fi
 
   echo "Updating $target_bin..."
+  chmod +x "$tmp_bin"
   if cp "$tmp_bin" "$target_bin"; then
     echo "Successfully updated agentx!"
     "$target_bin" --version
