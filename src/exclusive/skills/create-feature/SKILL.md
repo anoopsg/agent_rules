@@ -15,7 +15,8 @@ Features are located in `lib/src/features/`. The structure depends on the
 complexity of the domain.
 
 ### A. Simple Domain (e.g., Settings, Explore)
-If the feature is self-contained and doesn't require separate sub-modules:
+If the feature is self-contained and doesn't require separate sub-modules, 
+keep it flat under the feature root folder. No `_self` folder is used.
 ```text
 lib/src/features/settings/
 ├── state/               # Domain-specific state
@@ -28,12 +29,17 @@ lib/src/features/settings/
 ```
 
 ### B. Complex Domain (e.g., Auth, Account)
-If the feature contains multiple distinct flows:
+If the feature has multiple sub-domains, it is structured as a complex 
+domain. The `_self` folder is used for root-level domain control, shared 
+domain state (e.g., auth status, user metadata, cache), and layout/shell 
+views that host or wrap the sub-features.
+
+#### Example: Auth Domain
 ```text
 lib/src/features/auth/
-├── _self/               # Shared domain logic
+├── _self/               # Shared domain logic & state
 │   └── state/
-│       └── auth_notifier.dart
+│       └── auth_notifier.dart  # Global auth status
 ├── login/               # Sub-domain feature
 │   ├── state/           # Local feature state
 │   │   └── login_notifier.dart
