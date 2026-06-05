@@ -34,7 +34,23 @@ fi
 
 # Clean up version string (remove 'v' prefix if present for the echo)
 CLEAN_VERSION="${VERSION#v}"
-echo "Building agentx v${CLEAN_VERSION} ..."
+
+# ── Resolve repo owner/name for self-update ────────────────────────────
+# Priority: GITHUB_REPOSITORY env var (set automatically in GitHub Actions)
+# then parsed from the git remote URL, then a hardcoded fallback.
+if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
+  REPO_NAME="$GITHUB_REPOSITORY"
+else
+  # Parse SSH (git@github.com:owner/repo.git) or
+  # HTTPS (https://github.com/owner/repo.git) remote URLs.
+  _remote_url="$(git config --get remote.origin.url 2>/dev/null || echo "")"
+  if [[ "$_remote_url" =~ github\.com[:/]([^/]+/[^/]+?)(\.git)?$ ]]; then
+    REPO_NAME="${BASH_REMATCH[1]}"
+  else
+    REPO_NAME="anoopsg/agent_rules"
+  fi
+fi
+echo "Building agentx v${CLEAN_VERSION} (repo: ${REPO_NAME}) ..."
 
 mkdir -p "$DIST_DIR"
 
@@ -48,8 +64,10 @@ mkdir -p "$STAGE_DIR/bin"
 cp -R "$REPO_ROOT/src" "$STAGE_DIR/"
 cp -R "$REPO_ROOT/bin/"* "$STAGE_DIR/bin/"
 
-# Inject version into the staged agentx.sh
-sed "s/VERSION=\"dev\"/VERSION=\"${CLEAN_VERSION}\"/g" \
+# Inject version and repo name into the staged agentx.sh
+sed \
+  -e "s/VERSION=\"dev\"/VERSION=\"${CLEAN_VERSION}\"/g" \
+  -e "s|REPO_NAME=\"anoopsg/agent_rules\"|REPO_NAME=\"${REPO_NAME}\"|g" \
   "$REPO_ROOT/bin/agentx.sh" > "$STAGE_DIR/bin/agentx.sh"
 
 PAYLOAD="$(
@@ -81,6 +99,11 @@ tail -n +"$_PAYLOAD_START" "$0" | base64 --decode | tar -xzf - -C "$_TMPDIR"
 
 # Make all extracted shell scripts executable
 find "$_TMPDIR/bin" -name "*.sh" -exec chmod +x {} \;
+
+# Resolve and export the absolute path of this wrapper so that agentx.sh
+# can locate and overwrite itself during a self-update (--update flag).
+_SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
+export AGENTX_SELF_PATH="${_SELF_DIR}/$(basename "$0")"
 
 # Hand off to agentx.sh, forwarding all arguments
 exec "$_TMPDIR/bin/agentx.sh" "$@"
