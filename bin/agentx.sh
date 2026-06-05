@@ -11,50 +11,48 @@ EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/src/exclusive}"
 VERSION="dev"
 REPO_NAME="anoopsg/agent_rules"
 OUTPUT_DIR=""
-GEN_ANTIGRAVITY=false
-GEN_CURSOR=false
+GEN_ANTIGRAVITY=true
+GEN_CURSOR=true
 GEN_EXCLUSIVE=false
+TARGETS_SET=false
+
+## Maps shorthand or full target name to the canonical name.
+## Returns 1 for unknown targets.
+resolve_target() {
+  case "$1" in
+    ag|antigravity) echo "antigravity" ;;
+    cu|cursor)      echo "cursor" ;;
+    *) return 1 ;;
+  esac
+}
 
 show_help() {
   cat <<EOF
 Agent Rules Generator
 
-A CLI tool to generate vendor-specific agent rules (Antigravity, Cursor) 
-from canonical core rules and skills stored in the repository.
+Generates vendor-specific agent rules from canonical core
+rules and skills stored in the repository.
 
-Usage: agentx.sh [OPTIONS] <OUTPUT_DIR>
+Usage: agentx [OPTIONS] <OUTPUT_DIR>
 
 Arguments:
-  <OUTPUT_DIR>          The base directory where agent rules will be generated.
-                        For Antigravity, this creates <OUTPUT_DIR>/.agents/
-                        For Cursor, this creates <OUTPUT_DIR>/.cursor/
+  <OUTPUT_DIR>            Target directory for generated agent rules.
 
 Options:
-  -a, --antigravity     Generate Antigravity-specific rules (.agents directory).
-                        Includes auto-trigger configuration for core rules.
-  -c, --cursor          Generate Cursor-specific rules (.cursor directory).
-                        Converts markdown rules to .mdc format.
-  -e, --exclusive       Include exclusive rules and skills from the 
-                        exclusive/ directory. These are specialized 
-                        instructions that are not part of the core ruleset.
-  -A, --all             Generate rules for all supported agents.
-  -u, --update          Update agentx to the latest release.
-                        Only available for the compiled bundled binary.
-  -v, --version         Show the version of agentx and exit.
+  -t, --targets <list>  Comma-separated agents to generate
+                        (default: all).
+                        Values: antigravity (ag), cursor (cu)
+  -e, --exclusive       Include opt-in content from exclusive/.
+  -u, --update          Update agentx binary to latest release.
+  -v, --version         Show version and exit.
   -h, --help            Show this help message and exit.
 
 Examples:
-  # Generate Antigravity rules in the current directory
-  agentx.sh -a .         
-
-  # Generate Cursor rules in the current directory
-  agentx.sh -c .         
-
-  # Generate all rules including exclusive content in the 'gen' directory
-  agentx.sh -A -e gen    
-
-  # Update agentx to the latest release
-  agentx --update
+  agentx .              # All agents in current dir
+  agentx -e .           # All agents + exclusive content
+  agentx -t ag .        # Only antigravity
+  agentx -t ag,cu -e .  # Specific agents + exclusive
+  agentx --update       # Self-update the binary
 EOF
 }
 
@@ -141,21 +139,34 @@ do_update() {
 main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -a|--antigravity)
-        GEN_ANTIGRAVITY=true
+      -t|--targets)
         shift
-        ;;
-      -c|--cursor)
-        GEN_CURSOR=true
+        if [[ $# -eq 0 || "$1" == -* ]]; then
+          echo "Error: --targets requires a value."
+          exit 1
+        fi
+        # First -t disables defaults; parse targets
+        if [[ "$TARGETS_SET" = false ]]; then
+          GEN_ANTIGRAVITY=false
+          GEN_CURSOR=false
+          TARGETS_SET=true
+        fi
+        IFS=',' read -ra _targets <<< "$1"
+        for _t in "${_targets[@]}"; do
+          _resolved="$(resolve_target "$_t")" || {
+            echo "Error: Unknown target '$_t'."
+            echo "Valid: antigravity (ag), cursor (cu)"
+            exit 1
+          }
+          case "$_resolved" in
+            antigravity) GEN_ANTIGRAVITY=true ;;
+            cursor)      GEN_CURSOR=true ;;
+          esac
+        done
         shift
         ;;
       -e|--exclusive)
         GEN_EXCLUSIVE=true
-        shift
-        ;;
-      -A|--all)
-        GEN_ANTIGRAVITY=true
-        GEN_CURSOR=true
         shift
         ;;
       -u|--update)
@@ -163,7 +174,8 @@ main() {
         ;;
       -v|--version)
         if [[ "$VERSION" == "dev" ]]; then
-          echo "agentx version is not available (running from source)."
+          echo "agentx version is not available" \
+            "(running from source)."
         else
           echo "agentx version v$VERSION"
         fi
@@ -183,14 +195,14 @@ main() {
           OUTPUT_DIR="$1"
           shift
         else
-          echo "Error: Multiple output directories specified: $OUTPUT_DIR and $1"
+          echo "Error: Multiple output directories" \
+            "specified: $OUTPUT_DIR and $1"
           exit 1
         fi
         ;;
     esac
   done
 
-  # Check if output directory is provided
   if [[ -z "$OUTPUT_DIR" ]]; then
     echo "Error: Output directory is mandatory."
     echo ""
@@ -198,25 +210,16 @@ main() {
     exit 1
   fi
 
-  # Warn when generating into the repo root (source-only scenario).
-  # In the bundle, PROJECT_ROOT resolves to a temp dir, so this check
-  # only fires meaningfully when running bin/agentx.sh from source.
+  # Warn when generating into the repo root.
   local resolved_output
-  resolved_output="$(cd "${OUTPUT_DIR}" 2>/dev/null && pwd || echo "")"
-  if [[ -n "$resolved_output" && "$resolved_output" == "$PROJECT_ROOT" ]]; then
-    echo "Warning: You are generating rules into the repository root."
-    echo "This creates .agents/ and .cursor/ inside the repo, which can"
-    echo "clutter the workspace and interfere with active agent sessions."
-    echo "For local testing, prefer: bin/agentx.sh -A -e gen"
+  resolved_output="$(
+    cd "${OUTPUT_DIR}" 2>/dev/null && pwd || echo ""
+  )"
+  if [[ -n "$resolved_output" \
+    && "$resolved_output" == "$PROJECT_ROOT" ]]; then
+    echo "Warning: Generating into the repository root."
+    echo "For local testing, prefer: bin/agentx.sh -e gen"
     echo ""
-  fi
-
-  # If no agent was specified via flags, show help and exit
-  if [ "$GEN_ANTIGRAVITY" = false ] && [ "$GEN_CURSOR" = false ]; then
-    echo "Error: No agent specified. Use -a, -c, or -A."
-    echo ""
-    show_help
-    exit 1
   fi
 
   # Execute generation

@@ -54,11 +54,13 @@ This `agentx` binary is a self-extracting shell script that bundles the entire p
 
 ```bash
 # Download and make executable
-curl -L https://github.com/anoopsg/agent_rules/releases/latest/download/agentx -o agentx
+curl -L \
+  https://github.com/anoopsg/agent_rules/releases/latest/download/agentx \
+  -o agentx
 chmod +x agentx
 
 # Run directly
-./agentx -A .
+./agentx .
 ```
 
 ---
@@ -87,9 +89,7 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 
 | Flag | Long Form | Description |
 |---|---|---|
-| `-a` | `--antigravity` | Generate Antigravity rules & skills (`.agents/`) |
-| `-c` | `--cursor` | Generate Cursor rules & skills (`.cursor/`) |
-| `-A` | `--all` | Generate content for all supported agents |
+| `-t` | `--targets <list>` | Comma-separated agents (default: all). Values: `antigravity` (`ag`), `cursor` (`cu`) |
 | `-e` | `--exclusive` | Include opt-in content from `exclusive/` |
 | `-u` | `--update` | Update agentx binary to the latest release |
 | `-v` | `--version` | Show the version of agentx and exit |
@@ -98,17 +98,19 @@ appropriate hidden directories (`.agents/`, `.cursor/`) inside it.
 ### Examples
 
 ```bash
-# Generate rules for a specific agent in the current directory
-bin/agentx.sh -a .
-bin/agentx.sh -c .
+# Generate all agents in the current directory
+agentx .
 
-# Generate for all agents in a custom output directory
-bin/agentx.sh -A ~/my-project
+# All agents + exclusive content
+agentx -e .
 
-# Include exclusive skills and rules
-bin/agentx.sh -A --exclusive .
+# Only antigravity
+agentx -t ag .
 
-# Update the bundled agentx binary to the latest release
+# Specific agents + exclusive
+agentx -t ag,cu -e .
+
+# Update the bundled binary
 ./agentx --update
 ```
 
@@ -117,7 +119,7 @@ bin/agentx.sh -A --exclusive .
 ## Testing & Development
 
 ```bash
-bin/agentx.sh -A -e gen
+bin/agentx.sh -e gen
 ```
 
 ---
@@ -174,4 +176,4 @@ This includes:
 - **`src/exclusive/skills/`** — implementation patterns specific to the Launchpad architecture.
 - **`src/exclusive/rules/`** — behavioral rules that assume Launchpad conventions.
 
-This content is opt-in via the `--exclusive` flag, allowing the repository to remain flexible for general Dart & Flutter projects while providing specialized support for Launchpad.
+This content is opt-in via the `--exclusive` (`-e`) flag.
