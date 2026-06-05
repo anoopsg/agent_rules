@@ -1,4 +1,4 @@
-# Agent Rules & Skills [WIP]
+# Agent Rules & Skills
 
 > A vendor-agnostic repository of AI agent behavioral blueprints for Dart & Flutter projects.
 
