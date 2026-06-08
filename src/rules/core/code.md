@@ -6,4 +6,5 @@
 - Dart 3: Use concise syntax (arrows, ternaries, patterns). Prefer 1-liners.
 - Comments: Only for complex logic.
 - Max 80 chars/line. Add doc comments for public APIs.
+- Max 250 lines/file. Prefer private classes in-file for simple logic. Extract only if complexity or line limit is exceeded.
 - No emojis (e.g., ❌, ✅) in code or comments.
