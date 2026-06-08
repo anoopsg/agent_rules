@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=bin/_agents/_lib.sh
+source "$_LIB_DIR/_lib.sh"
+
 RULES_ROOT_DIR="$1"
 SKILLS_ROOT_DIR="$2"
 BASE_DIR="${3:-.}"
@@ -19,26 +23,37 @@ mkdir -p "$SKILLS_DIR"
 # Helper function to process rules
 process_rules() {
   local src_dir="$1"
-  local is_core="${2:-false}"
-  
+
   if [[ ! -d "$src_dir" ]]; then return; fi
-  
+
   while IFS= read -r -d '' rule_file; do
-    # Get the relative path from the rules root
-    rel_path="${rule_file#$src_dir/}"
+    local rel_path filename output_file trigger description trig_out
+    rel_path="${rule_file#"$src_dir"/}"
     # Replace slashes with underscores for the output filename
     filename="${rel_path//\//_}"
-    
     output_file="$RULES_DIR/$filename"
 
+    trigger="$(fm_field "$rule_file" trigger)"
+    trigger="${trigger:-always}"
+    description="$(fm_field "$rule_file" description)"
+
+    case "$trigger" in
+      always) trig_out="always_on" ;;
+      auto)   trig_out="model_decision" ;;
+      off)    trig_out="manual" ;;
+      *)
+        echo "Error: unknown trigger '$trigger' in $rule_file" >&2
+        exit 1
+        ;;
+    esac
+
     {
-      if [ "$is_core" = true ] && [[ "$rel_path" == core/* ]]; then
-        echo "---"
-        echo "trigger: always_on"
-        echo "---"
-        echo ""
-      fi
-      cat "$rule_file"
+      echo "---"
+      echo "trigger: $trig_out"
+      [[ -n "$description" ]] && echo "description: $description"
+      echo "---"
+      echo ""
+      fm_body "$rule_file"
     } > "$output_file"
   done < <(find "$src_dir" -name "*.md" -print0)
 }
@@ -51,16 +66,19 @@ process_skills() {
   
   # Find all SKILL.md files in subdirectories
   while IFS= read -r -d '' skill_file; do
+    local skill_name target_skill_dir
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
-    target_skill="$SKILLS_DIR/${skill_name}.md"
+    # Antigravity/Gemini also follows the folder/SKILL.md pattern for portability
+    target_skill_dir="$SKILLS_DIR/${skill_name}"
+    mkdir -p "$target_skill_dir"
 
-    cat "$skill_file" > "$target_skill"
+    cat "$skill_file" > "$target_skill_dir/SKILL.md"
   done < <(find "$src_dir" -name "SKILL.md" -print0)
 }
 
 # 1. Process Core Rules
-process_rules "$RULES_ROOT_DIR" true
+process_rules "$RULES_ROOT_DIR"
 
 # 2. Process Core Skills
 process_skills "$SKILLS_ROOT_DIR"
@@ -68,7 +86,7 @@ process_skills "$SKILLS_ROOT_DIR"
 # 3. Process Exclusive content if provided
 if [[ -n "$EXCLUSIVE_ROOT_DIR" ]] && [[ -d "$EXCLUSIVE_ROOT_DIR" ]]; then
   echo "Applying exclusive content from: $EXCLUSIVE_ROOT_DIR"
-  process_rules "$EXCLUSIVE_ROOT_DIR/rules" false
+  process_rules "$EXCLUSIVE_ROOT_DIR/rules"
   process_skills "$EXCLUSIVE_ROOT_DIR/skills"
 fi
 

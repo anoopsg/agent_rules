@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Tool Usage
 - Discovery: `grep_search` over reading dirs.
 - Reading: Use `view_file` with `StartLine`/`EndLine`.

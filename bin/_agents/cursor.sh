@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=bin/_agents/_lib.sh
+source "$_LIB_DIR/_lib.sh"
+
 RULES_ROOT_DIR="$1"
 SKILLS_ROOT_DIR="$2"
 BASE_DIR="${3:-.}"
@@ -23,25 +27,41 @@ process_rules() {
   if [[ ! -d "$src_dir" ]]; then return; fi
   
   while IFS= read -r -d '' rule_file; do
-    # Get the relative path from the rules root
-    rel_path="${rule_file#$src_dir/}"
-    # Get the directory part
+    local rel_path rel_dir filename target_dir output_file
+    local trigger description
+    rel_path="${rule_file#"$src_dir"/}"
     rel_dir="$(dirname "$rel_path")"
-    # Get the filename without extension
     filename="$(basename "$rel_path" .md)"
-    
-    # Target directory in .cursor/rules/
+
     target_dir="$RULES_DIR/$rel_dir"
     mkdir -p "$target_dir"
-    
     output_file="$target_dir/${filename}.mdc"
+
+    trigger="$(fm_field "$rule_file" trigger)"
+    trigger="${trigger:-always}"
+    description="$(fm_field "$rule_file" description)"
 
     {
       echo "---"
-      echo "alwaysApply: true"
+      case "$trigger" in
+        always)
+          echo "alwaysApply: true"
+          ;;
+        auto)
+          [[ -n "$description" ]] && echo "description: $description"
+          echo "alwaysApply: false"
+          ;;
+        off)
+          echo "alwaysApply: false"
+          ;;
+        *)
+          echo "Error: unknown trigger '$trigger' in $rule_file" >&2
+          exit 1
+          ;;
+      esac
       echo "---"
       echo ""
-      cat "$rule_file"
+      fm_body "$rule_file"
     } > "$output_file"
   done < <(find "$src_dir" -name "*.md" -print0)
 }
@@ -54,6 +74,7 @@ process_skills() {
   
   # Find all SKILL.md files in subdirectories
   while IFS= read -r -d '' skill_file; do
+    local skill_name target_skill_dir
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
     # Cursor discovers skills at .cursor/skills/<name>/SKILL.md

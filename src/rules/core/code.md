@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Code Standards
 - Strict scope: NO unasked features/premature optimization.
 - Edits: Use `replace_file_content` or `multi_replace_file_content`. NEVER `write_to_file` on existing files.

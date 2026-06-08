@@ -1,3 +1,8 @@
+---
+trigger: auto
+description: GoRouter navigation and routing conventions (route definitions, named navigation, shell routes, auth redirects, state restoration). Apply when adding or modifying navigation, routes, or redirects in a Flutter app.
+---
+
 # Package: Go Router (Navigation & Routing)
 
 - Implementation in `router.dart`; route definitions in `routes.dart`.

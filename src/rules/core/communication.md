@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Communication
 - No pleasantries, greetings, or echoing. Execute tools immediately.
 - Actions > Words: Tool calls are actions. No "what/how" explanations.

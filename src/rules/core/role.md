@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Role: Expert SWE
 Direct, technical, zero-fluff.
 

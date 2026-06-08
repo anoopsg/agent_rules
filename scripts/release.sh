@@ -16,7 +16,6 @@ set -euo pipefail
 
 # ── Paths ──────────────────────────────────────────────────────────────
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BIN_DIR="$REPO_ROOT/bin"
 DIST_DIR="$REPO_ROOT/dist"
 OUTPUT_FILE="$DIST_DIR/agentx"
 VERSION="${1:-}"

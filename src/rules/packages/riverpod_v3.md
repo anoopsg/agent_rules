@@ -1,3 +1,8 @@
+---
+trigger: auto
+description: Riverpod v3 state-management conventions (code-gen providers, AsyncValue handling, notifier patterns, immutable state). Apply when working with Riverpod providers, notifiers, or async state in Dart/Flutter.
+---
+
 # Package: Riverpod (v3.x)
 
 - Always use `@riverpod` or `@Riverpod(keepAlive: true)` code generation. No manual providers.

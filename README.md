@@ -130,11 +130,8 @@ Rules and skills are compiled into the following output directories:
 
 | Agent | Rules | Skills |
 |---|---|---|
-| **Antigravity** | `.agents/rules/*.md` | `.agents/skills/*.md` |
-| **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/*.md` |
-
-> Core rules under `src/rules/core/` are automatically annotated with
-> `trigger: always_on` in the Antigravity output.
+| **Antigravity** | `.agents/rules/*.md` | `.agents/skills/<name>/SKILL.md` |
+| **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/<name>/SKILL.md` |
 
 ---
 
@@ -142,7 +139,7 @@ Rules and skills are compiled into the following output directories:
 
 ### Rules
 
-Rules are plain Markdown files placed under `src/rules/` (core) or
+Rules are Markdown files placed under `src/rules/` (core) or
 `src/exclusive/rules/` (Launchpad). Organize them into topic subdirectories.
 
 ```
@@ -150,6 +147,27 @@ src/rules/
 └── flutter/
     └── performance.md   # A core rule document
 ```
+
+Each rule declares a vendor-agnostic `trigger` in its frontmatter. The
+generators map it to the correct per-vendor format:
+
+```markdown
+---
+trigger: auto
+description: When this rule should apply (required for `auto`).
+---
+
+# Rule content...
+```
+
+| Source `trigger` | Meaning | Cursor | Antigravity |
+|---|---|---|---|
+| `always` | Always in context | `alwaysApply: true` | `trigger: always_on` |
+| `auto` | Agent decides via `description` | `description:` + `alwaysApply: false` | `trigger: model_decision` |
+| `off` | Manual (`@`-mention) only | `alwaysApply: false` | `trigger: manual` |
+
+> `description` is required for `auto` rules — it's what the agent reads to
+> decide relevance. If `trigger` is omitted, it defaults to `always`.
 
 ### Skills
 
