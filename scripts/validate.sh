@@ -35,6 +35,12 @@ assert_absent() {
   ok "absent '$2' -> $1"
 }
 
+# Asserts a file does NOT exist.
+assert_no_file() {
+  [[ -e "$1" ]] && fail "file should have been removed: $1"
+  ok "removed $1"
+}
+
 echo "== 1. shellcheck =="
 if command -v shellcheck >/dev/null 2>&1; then
   # SC1091: don't follow sourced files (resolved at runtime).
@@ -73,6 +79,21 @@ assert_contains "$AR/core_code.md" "trigger: always_on"
 assert_contains "$AR/packages_riverpod_v3.md" "trigger: model_decision"
 assert_contains "$AR/packages_riverpod_v3.md" "description:"
 assert_file "$OUT/.agents/skills/create-feature/SKILL.md"
+
+echo "== 5. --clean assertions =="
+# Simulate a stale file from a prior run (recorded in the manifest) and a
+# hand-added user file (absent from the manifest).
+STALE="$OUT/.cursor/rules/core/stale.mdc"
+USER_RULE="$OUT/.cursor/rules/user-custom.mdc"
+echo "stale" > "$STALE"
+echo ".cursor/rules/core/stale.mdc" >> "$OUT/.cursor/.agentx-manifest"
+echo "mine" > "$USER_RULE"
+
+bash "$REPO_ROOT/bin/agentx.sh" -t cu -e -c "$OUT" >/dev/null
+# Stale generated file is removed; user file survives; output regenerated.
+assert_no_file "$STALE"
+assert_file "$USER_RULE"
+assert_file "$CR/core/code.mdc"
 
 echo ""
 echo "All $PASS checks passed."
