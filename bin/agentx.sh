@@ -182,6 +182,10 @@ main() {
         shift
         ;;
       -u|--update)
+        if [[ $# -gt 1 ]]; then
+          echo "Error: --update cannot be combined with other arguments."
+          exit 1
+        fi
         do_update
         ;;
       -v|--version)

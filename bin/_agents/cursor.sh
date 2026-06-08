@@ -22,7 +22,7 @@ process_rules() {
   
   if [[ ! -d "$src_dir" ]]; then return; fi
   
-  find "$src_dir" -name "*.md" | while read -r rule_file; do
+  while IFS= read -r -d '' rule_file; do
     # Get the relative path from the rules root
     rel_path="${rule_file#$src_dir/}"
     # Get the directory part
@@ -36,8 +36,14 @@ process_rules() {
     
     output_file="$target_dir/${filename}.mdc"
 
-    cat "$rule_file" > "$output_file"
-  done
+    {
+      echo "---"
+      echo "alwaysApply: true"
+      echo "---"
+      echo ""
+      cat "$rule_file"
+    } > "$output_file"
+  done < <(find "$src_dir" -name "*.md" -print0)
 }
 
 # Helper function to process skills
@@ -47,13 +53,15 @@ process_skills() {
   if [[ ! -d "$src_dir" ]]; then return; fi
   
   # Find all SKILL.md files in subdirectories
-  find "$src_dir" -name "SKILL.md" | while read -r skill_file; do
+  while IFS= read -r -d '' skill_file; do
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
-    target_skill="$SKILLS_DIR/${skill_name}.md"
+    # Cursor discovers skills at .cursor/skills/<name>/SKILL.md
+    target_skill_dir="$SKILLS_DIR/${skill_name}"
+    mkdir -p "$target_skill_dir"
 
-    cat "$skill_file" > "$target_skill"
-  done
+    cat "$skill_file" > "$target_skill_dir/SKILL.md"
+  done < <(find "$src_dir" -name "SKILL.md" -print0)
 }
 
 # 1. Process Core Rules

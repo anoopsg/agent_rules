@@ -102,7 +102,7 @@ trap 'rm -rf "$_TMPDIR"' EXIT
 
 # Everything after the __PAYLOAD__ marker is the base64 archive
 _PAYLOAD_START=$(awk '/^__PAYLOAD__$/{print NR+1; exit}' "$0")
-tail -n +"$_PAYLOAD_START" "$0" | base64 --decode | tar -xzf - -C "$_TMPDIR"
+tail -n +"$_PAYLOAD_START" "$0" | base64 -d | tar -xzf - -C "$_TMPDIR"
 
 # Make all extracted shell scripts executable
 find "$_TMPDIR/bin" -name "*.sh" -exec chmod +x {} \;

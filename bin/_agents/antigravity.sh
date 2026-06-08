@@ -23,7 +23,7 @@ process_rules() {
   
   if [[ ! -d "$src_dir" ]]; then return; fi
   
-  find "$src_dir" -name "*.md" | while read -r rule_file; do
+  while IFS= read -r -d '' rule_file; do
     # Get the relative path from the rules root
     rel_path="${rule_file#$src_dir/}"
     # Replace slashes with underscores for the output filename
@@ -40,7 +40,7 @@ process_rules() {
       fi
       cat "$rule_file"
     } > "$output_file"
-  done
+  done < <(find "$src_dir" -name "*.md" -print0)
 }
 
 # Helper function to process skills
@@ -50,13 +50,13 @@ process_skills() {
   if [[ ! -d "$src_dir" ]]; then return; fi
   
   # Find all SKILL.md files in subdirectories
-  find "$src_dir" -name "SKILL.md" | while read -r skill_file; do
+  while IFS= read -r -d '' skill_file; do
     # Get the parent directory name as the skill name
     skill_name="$(basename "$(dirname "$skill_file")")"
     target_skill="$SKILLS_DIR/${skill_name}.md"
 
     cat "$skill_file" > "$target_skill"
-  done
+  done < <(find "$src_dir" -name "SKILL.md" -print0)
 }
 
 # 1. Process Core Rules
