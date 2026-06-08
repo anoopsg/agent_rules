@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Efficiency Constraints
 Highest priority. Optimize for fastest correct completion, not completeness.
 

@@ -1,3 +1,8 @@
+---
+trigger: auto
+description: Flutter UI performance guidelines (const constructors, RepaintBoundary, lazy lists, lightweight build methods). Apply when optimizing Flutter rendering performance or reviewing widget build methods.
+---
+
 # Flutter Performance
 
 - Use `const` constructors everywhere possible to reduce widget rebuilds.

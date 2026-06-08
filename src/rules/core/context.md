@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Context Management
 Critical. Prefer minimal context usage.
 
