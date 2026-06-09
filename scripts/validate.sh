@@ -80,7 +80,19 @@ assert_contains "$AR/packages_riverpod_v3.md" "trigger: model_decision"
 assert_contains "$AR/packages_riverpod_v3.md" "description:"
 assert_file "$OUT/.agents/skills/create-feature/SKILL.md"
 
-echo "== 5. --clean assertions =="
+echo "== 5. kiro assertions =="
+KS="$OUT/.kiro/steering"
+# always -> inclusion: always, auto -> inclusion: auto + description
+assert_contains "$KS/core-code.md" "inclusion: always"
+assert_contains "$KS/packages-riverpod_v3.md" "inclusion: auto"
+assert_contains "$KS/packages-riverpod_v3.md" "description:"
+# body is preserved, source frontmatter is stripped
+assert_contains "$KS/core-code.md" "# Code Standards"
+assert_absent   "$KS/core-code.md" "trigger: always"
+# skills are flattened to <name>.md in steering/
+assert_file "$KS/create-feature.md"
+
+echo "== 6. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
 # hand-added user file (absent from the manifest).
 STALE="$OUT/.cursor/rules/core/stale.mdc"

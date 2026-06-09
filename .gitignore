@@ -1,4 +1,5 @@
 .cursor
 .agents
+.kiro
 gen/
 dist/
