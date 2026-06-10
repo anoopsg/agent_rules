@@ -92,7 +92,19 @@ assert_absent   "$KS/core-code.md" "trigger: always"
 # skills are flattened to <name>.md in steering/
 assert_file "$KS/create-feature.md"
 
-echo "== 6. --clean assertions =="
+echo "== 6. claude assertions =="
+CL="$OUT/.claude/rules"
+# no frontmatter — plain markdown body only
+assert_contains "$CL/core_code.md" "# Code Standards"
+assert_absent   "$CL/core_code.md" "trigger:"
+assert_absent   "$CL/core_code.md" "---"
+# skills are flattened as plain rule files
+assert_file "$CL/create-feature.md"
+# CLAUDE.md index is generated at root
+assert_file "$OUT/CLAUDE.md"
+assert_contains "$OUT/CLAUDE.md" "## Rules Index"
+
+echo "== 7. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
 # hand-added user file (absent from the manifest).
 STALE="$OUT/.cursor/rules/core/stale.mdc"
