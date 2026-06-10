@@ -140,7 +140,7 @@ Rules and skills are compiled into the following output directories:
 | Agent | Rules | Skills |
 |---|---|---|
 | **Antigravity** | `.agents/rules/*.md` | `.agents/skills/<name>/SKILL.md` |
-| **Claude** | `.claude/rules/*.md` | Flattened into `.claude/rules/*.md` |
+| **Claude** | `.claude/rules/*.md` | `.claude/skills/<name>/SKILL.md` |
 | **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/<name>/SKILL.md` |
 | **Kiro** | `.kiro/steering/*.md` | `.kiro/steering/<name>.md` |
 

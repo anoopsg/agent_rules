@@ -23,7 +23,7 @@ MANIFEST="$BASE_DIR/.claude/.agentx-manifest"
 # manifest) before regenerating. Hand-added files aren't in the manifest,
 # so they are preserved.
 if [[ "$CLEAN" == "true" ]]; then
-  manifest_clean "$MANIFEST" "$BASE_DIR" "$RULES_DIR"
+  manifest_clean "$MANIFEST" "$BASE_DIR" "$RULES_DIR" "$BASE_DIR/.claude/skills"
 fi
 
 mkdir -p "$RULES_DIR"
@@ -61,9 +61,12 @@ process_skills() {
   if [[ ! -d "$src_dir" ]]; then return; fi
 
   while IFS= read -r -d '' skill_file; do
-    local skill_name output_file description
+    local skill_name output_dir output_file description
     skill_name="$(basename "$(dirname "$skill_file")")"
-    output_file="$RULES_DIR/${skill_name}.md"
+    output_dir="$BASE_DIR/.claude/skills/${skill_name}"
+    output_file="$output_dir/SKILL.md"
+
+    mkdir -p "$output_dir"
 
     description="$(fm_field "$skill_file" description)"
 

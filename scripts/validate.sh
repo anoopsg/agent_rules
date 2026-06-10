@@ -98,8 +98,8 @@ CL="$OUT/.claude/rules"
 assert_contains "$CL/core_code.md" "# Code Standards"
 assert_absent   "$CL/core_code.md" "trigger:"
 assert_absent   "$CL/core_code.md" "---"
-# skills are flattened as plain rule files
-assert_file "$CL/create-feature.md"
+# skills are natively supported in .claude/skills/
+assert_file "$OUT/.claude/skills/create-feature/SKILL.md"
 
 echo "== 7. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
