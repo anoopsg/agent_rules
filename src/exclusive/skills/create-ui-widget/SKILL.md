@@ -26,7 +26,6 @@ packages/app_ui/lib/widgets/
 ├── layout/
 │   └── web/
 │       └── scaffold_web.dart  # Class name: YzScaffoldWeb
-└── registry.md                # Widget registry document
 ```
 
 ## 2. Implementation Rules
@@ -50,6 +49,13 @@ Follow these rules when implementing a widget in `app_ui`:
 ```dart
 import 'package:flutter/material.dart';
 
+/// Content card for displaying simple text.
+///
+/// ---
+/// @UI: Card | Content
+/// @Source: — | Status: manual
+/// @Style: Bg: surface | Radius: md
+/// @Layout: Padding: md
 class YzCard extends StatelessWidget {
   const YzCard({
     required this.title,
@@ -79,8 +85,32 @@ Always export your new widget in the root library files:
 - Mobile/Shared widgets: `packages/app_ui/lib/app_ui.dart`
 - Web-specific widgets: `packages/app_ui/lib/app_ui_web.dart`
 
-## 4. Registering the Widget
+## 4. Widget Annotations (Code-as-Truth)
 
-Add the widget to the [registry.md](../../packages/app_ui/lib/widgets/registry.md) with:
-- Widget name and a brief description.
-- Example usage block.
+We do **not** use a centralized `registry.md`. Instead, every reusable widget must include a strict 4-line doc-comment block directly above the class definition. This allows AI agents to rapidly filter and deduplicate widgets across the entire codebase using `grep_search`.
+
+### The Annotation Schema
+
+The block must be separated by a horizontal rule (`---`) and consists of 4 grouped `@` tags:
+
+1. `@UI:` Category and Intent (e.g., `Button | Primary CTA`).
+2. `@Source:` Figma breadcrumb and sync status (e.g., `Login > Hero > CTA | Status: synced`).
+3. `@Style:` Colors and shapes (`Bg`, `Text`, `Radius`, `Border`, `Shadow`).
+4. `@Layout:` Spacing and structure (`Padding`, `Size`, `Icon`).
+
+### Rules
+
+1. **Omit Defaults**: To keep the footprint minimal, only include properties that are actively styled. If a widget has no border or shadow, do not write `Border: none`. Omit them entirely.
+2. **80-Character Limit**: The grouped lines must not exceed 80 characters. If a line is too long, wrap it to a new line with the same tag prefix.
+
+### Dictionary Keys
+
+Use exact keys and tokens (e.g., `Bg: primary | Radius: pill`):
+- `Bg`: Semantic color (e.g., `primary`, `surface`, `transparent`)
+- `Text`: Typography token (e.g., `labelLarge`, `bodyMedium`)
+- `Radius`: Shape (e.g., `sm`, `md`, `pill`)
+- `Border`: Outline style (e.g., `outline`, `error`)
+- `Shadow`: Elevation (e.g., `sm`, `md`)
+- `Padding`: Spacing (e.g., `sm`, `md`, `lg`)
+- `Size`: Layout behavior (e.g., `expanded`, `shrink`, `fixed`)
+- `Icon`: Presence (e.g., `leading`, `trailing`, `only`)
