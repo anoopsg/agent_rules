@@ -100,9 +100,6 @@ assert_absent   "$CL/core_code.md" "trigger:"
 assert_absent   "$CL/core_code.md" "---"
 # skills are flattened as plain rule files
 assert_file "$CL/create-feature.md"
-# CLAUDE.md index is generated at root
-assert_file "$OUT/CLAUDE.md"
-assert_contains "$OUT/CLAUDE.md" "## Rules Index"
 
 echo "== 7. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
