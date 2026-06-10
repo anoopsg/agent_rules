@@ -52,7 +52,7 @@ process_rules() {
 }
 
 # Helper function to process skills
-# Claude Code has no native skills — flatten into .claude/rules/.
+# Claude Code supports native skills via .claude/skills/<name>/SKILL.md
 process_skills() {
   local src_dir="$1"
 
