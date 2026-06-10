@@ -92,20 +92,36 @@ assert_absent   "$KS/core-code.md" "trigger: always"
 # skills are flattened to <name>.md in steering/
 assert_file "$KS/create-feature.md"
 
-echo "== 6. --clean assertions =="
+echo "== 6. claude assertions =="
+CL="$OUT/.claude/rules"
+# no frontmatter — plain markdown body only
+assert_contains "$CL/core_code.md" "# Code Standards"
+assert_absent   "$CL/core_code.md" "trigger:"
+# skills are natively supported in .claude/skills/
+assert_file "$OUT/.claude/skills/create-feature/SKILL.md"
+
+echo "== 7. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
 # hand-added user file (absent from the manifest).
 STALE="$OUT/.cursor/rules/core/stale.mdc"
 USER_RULE="$OUT/.cursor/rules/user-custom.mdc"
+CLAUDE_STALE_SKILL="$OUT/.claude/skills/stale-skill/SKILL.md"
+
 echo "stale" > "$STALE"
 echo ".cursor/rules/core/stale.mdc" >> "$OUT/.cursor/.agentx-manifest"
 echo "mine" > "$USER_RULE"
 
-bash "$REPO_ROOT/bin/agentx.sh" -t cu -e -c "$OUT" >/dev/null
-# Stale generated file is removed; user file survives; output regenerated.
+mkdir -p "$(dirname "$CLAUDE_STALE_SKILL")"
+echo "stale skill" > "$CLAUDE_STALE_SKILL"
+echo ".claude/skills/stale-skill/SKILL.md" >> "$OUT/.claude/.agentx-manifest"
+
+bash "$REPO_ROOT/bin/agentx.sh" -t cu,cl -e -c "$OUT" >/dev/null
+# Stale generated files are removed; user file survives; output regenerated.
 assert_no_file "$STALE"
 assert_file "$USER_RULE"
 assert_file "$CR/core/code.mdc"
+assert_no_file "$CLAUDE_STALE_SKILL"
+assert_file "$OUT/.claude/skills/create-feature/SKILL.md"
 
 echo ""
 echo "All $PASS checks passed."
