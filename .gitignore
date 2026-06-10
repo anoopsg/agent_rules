@@ -1,5 +1,7 @@
 .cursor
 .agents
+.claude
 .kiro
+CLAUDE.md
 gen/
 dist/
