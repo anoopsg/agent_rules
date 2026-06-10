@@ -39,13 +39,11 @@ process_rules() {
   if [[ ! -d "$src_dir" ]]; then return; fi
 
   while IFS= read -r -d '' rule_file; do
-    local rel_path filename output_file description
+    local rel_path filename output_file
     rel_path="${rule_file#"$src_dir"/}"
     # Replace slashes with underscores for the output filename
     filename="${rel_path//\//_}"
     output_file="$RULES_DIR/$filename"
-
-    description="$(fm_field "$rule_file" description)"
 
     # Claude Code: plain markdown, no frontmatter
     fm_body "$rule_file" > "$output_file"
@@ -61,14 +59,12 @@ process_skills() {
   if [[ ! -d "$src_dir" ]]; then return; fi
 
   while IFS= read -r -d '' skill_file; do
-    local skill_name output_dir output_file description
+    local skill_name output_dir output_file
     skill_name="$(basename "$(dirname "$skill_file")")"
     output_dir="$BASE_DIR/.claude/skills/${skill_name}"
     output_file="$output_dir/SKILL.md"
 
     mkdir -p "$output_dir"
-
-    description="$(fm_field "$skill_file" description)"
 
     # Claude Code: plain markdown, no frontmatter
     fm_body "$skill_file" > "$output_file"
