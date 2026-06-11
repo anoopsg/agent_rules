@@ -12,3 +12,4 @@ trigger: always
 - Max 80 chars/line. Add doc comments for public APIs.
 - Max 250 lines/file. Prefer private classes in-file for simple logic. Extract only if complexity or line limit is exceeded.
 - No emojis (e.g., ❌, ✅) in code or comments.
+- Validation: After generating code, check for and fix all warnings/infos.
