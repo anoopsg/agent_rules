@@ -1,72 +1,148 @@
 ---
 name: manage-routes
-description: Use when asked to add, update, or group routes using GoRouter, or manage redirection guards.
+description: >-
+  Use when asked to add, update, or group routes using
+  GoRouter, or manage redirection guards.
 ---
 
 # Routing Management Skill
 
-This skill defines the process for adding, modifying, and guarding routes
-in the project using GoRouter.
+This skill defines the process for adding, modifying,
+and guarding routes using GoRouter with the `_AppRoute`
+base class, `Routes` registry, and `_RouteComposer`.
 
 ## 1. Directory Structure
 
-Routing configurations are located in `lib/src/routes/`:
-
 ```text
 lib/src/routes/
-├── router.dart           # GoRouter config & authentication shells
-├── router.g.dart         # Auto-generated routing code
-├── router_listenable.dart# Listens to auth state changes to trigger redirects
-└── routes.dart           # Static route definitions and builders
+├── router.dart            # GoRouter config & auth shells
+├── router.g.dart          # Auto-generated (Riverpod)
+├── router_listenable.dart # Auth-state refresh listener
+└── routes.dart            # _AppRoute base + Routes registry
 ```
 
-## 2. Step 1: Define the Route
+## 2. Route Architecture
 
-Add a new static route definition inside [routes.dart](../../lib/src/routes/routes.dart).
+### _AppRoute Base Class
 
-Each route should be an `abstract final class` with `path`, `name`, and a static
-`build` method:
+Every route extends the private `_AppRoute` class which
+holds `path`, `name`, and a `build` method. It also
+provides `toGoRoute()` for zero-boilerplate registration:
 
 ```dart
-abstract final class SettingsRoute {
-  static const String path = '/settings';
-  static const String name = 'settings';
+abstract class _AppRoute {
+  const _AppRoute({required this.path, required this.name});
+  final String path;
+  final String name;
 
-  static Widget build(BuildContext context, GoRouterState state) =>
-      const SettingsPage();
+  Widget build(BuildContext context, GoRouterState state);
+
+  GoRoute toGoRoute() => GoRoute(
+    name: name,
+    path: path,
+    builder: build,
+  );
 }
 ```
 
-## 3. Step 2: Register the Route in router.dart
+### Routes Registry
 
-Add the route to the appropriate [ShellRoute] in [router.dart](../../lib/src/routes/router.dart):
-
-- **openRoutes**: Accessible by any user on matching platforms (e.g. Splash,
-  Maintenance, Update).
-- **unauthenticatedRoutes**: Accessible ONLY when logged out. Redirects to Home
-  if logged in (e.g. Login).
-- **authenticatedRoutes**: Accessible ONLY when logged in. Redirects to Login
-  if logged out (e.g. Profile, Settings).
-
-### 3.1 Registration Example
-
-Do **not** redefine the `ShellRoute`. Instead, add a `GoRoute` entry inside
-the `routes` list of the appropriate existing shell variable in `router.dart`:
+All routes are registered as `static const` fields in the
+`Routes` class for autocomplete-friendly discovery:
 
 ```dart
-// Inside the existing authenticatedRoutes ShellRoute in appRouter()
-GoRoute(
-  name: SettingsRoute.name,
-  path: SettingsRoute.path,
-  builder: SettingsRoute.build,
-),
+abstract final class Routes {
+  static const home = _HomeRoute();
+  static const login = _LoginRoute();
+  // ...
+}
 ```
 
-## 4. Step 3: Re-generate Routing Code
+## 3. Step 1 — Define a New Route
 
-The `appRouter` provider is annotated with `@Riverpod`. After any change to
-router files, regenerate the `.g.dart` file by running:
+Add a `final class` extending `_AppRoute` at the bottom of
+[routes.dart](../../lib/src/routes/routes.dart):
+
+```dart
+final class _SearchRoute extends _AppRoute {
+  const _SearchRoute()
+      : super(path: '/search', name: 'search');
+
+  @override
+  Widget build(_, _) => const SearchPage();
+}
+```
+
+For routes with path parameters, extract them from
+`GoRouterState`:
+
+```dart
+final class _DetailRoute extends _AppRoute {
+  const _DetailRoute()
+      : super(path: '/detail/:id', name: 'detail');
+
+  @override
+  Widget build(_, GoRouterState state) {
+    final id = state.pathParameters['id']!;
+    return DetailPage(id: id);
+  }
+}
+```
+
+## 4. Step 2 — Register in Routes
+
+Add a `static const` entry in the `Routes` class inside
+[routes.dart](../../lib/src/routes/routes.dart):
+
+```dart
+abstract final class Routes {
+  // ... existing routes
+  static const search = _SearchRoute();
+}
+```
+
+## 5. Step 3 — Add to the Router
+
+Add the route to the appropriate shell in
+[router.dart](../../lib/src/routes/router.dart) using
+`toGoRoute()`:
+
+```dart
+Routes.search.toGoRoute(),
+```
+
+### Authentication Shells
+
+| Shell | Access | Redirect |
+|---|---|---|
+| `openRoutes` | Any user, platform-gated | None |
+| `unauthenticatedRoutes` | Logged-out only | → `/` if logged in |
+| `authenticatedRoutes` | Logged-in only | → `/login` if logged out |
+
+### _RouteComposer & Platform Routing
+
+The `_RouteComposer` class handles platform-specific
+layouts. On mobile the landing page uses a
+`StatefulShellRoute.indexedStack` with bottom nav
+branches (home, explore, notifications, profile). On web
+it returns a single `Routes.home.toGoRoute()`.
+
+To add a new bottom-nav tab, add the route to the
+`branches` list inside `_RouteComposer.landing`.
+
+## 6. Step 4 — Re-generate
+
+The `appRouter` provider is annotated with `@Riverpod`.
+After any change, regenerate the `.g.dart` file:
 
 ```bash
 melos run generate
+```
+
+## 7. Navigation in Code
+
+```dart
+context.go(Routes.settings.path);
+context.push(Routes.settings.path);
+context.goNamed(Routes.settings.name);
 ```
