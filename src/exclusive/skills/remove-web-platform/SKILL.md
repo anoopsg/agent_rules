@@ -43,7 +43,7 @@ Remove web-only plugins or packages from the dependencies list in the root
 Delete the web-specific design and styling components in `packages/app_ui`:
 
 - Delete the web-specific exports file (e.g., `packages/app_ui/lib/app_ui_web.dart`).
-- Delete the web-specific widgets directory (e.g., `packages/app_ui/lib/widgets/web/`).
+- Delete the web-specific widgets directory (e.g., `packages/app_ui/lib/src/widgets/web/`).
 
 ## 4. Clean Up Bootstrap Files
 
