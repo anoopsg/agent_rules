@@ -13,3 +13,4 @@ trigger: always
 - Structure: Prefer private classes in-file for simple logic. Extract only if complexity or line limit is exceeded.
 - NEVER use emojis in code or comments.
 - Validation: After generating code, check for and fix all warnings and infos.
+- UI Logic: Avoid complex conditional logic in the UI. Instead, add convenience getters to the underlying entity or model to simplify the view.
