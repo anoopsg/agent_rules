@@ -94,11 +94,14 @@ assert_file "$KS/create-feature.md"
 
 echo "== 6. claude assertions =="
 CL="$OUT/.claude/rules"
-# no frontmatter — plain markdown body only
+# rules: no frontmatter — plain markdown body only
 assert_contains "$CL/core_code.md" "# Code Standards"
 assert_absent   "$CL/core_code.md" "trigger:"
-# skills are natively supported in .claude/skills/
+# skills are natively supported in .claude/skills/ and keep their
+# name/description frontmatter so Claude Code can auto-invoke them
 assert_file "$OUT/.claude/skills/create-feature/SKILL.md"
+assert_contains "$OUT/.claude/skills/create-feature/SKILL.md" "name: create-feature"
+assert_contains "$OUT/.claude/skills/create-feature/SKILL.md" "description:"
 
 echo "== 7. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a

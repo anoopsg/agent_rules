@@ -50,7 +50,7 @@ When extracting from Figma via the MCP server, assets might not be marked for ex
 If the design lacks a defined palette or uses inconsistent, ad-hoc hex codes (e.g., from junior designers):
 1. **Consolidate**: Identify the core, most frequently used colors representing the brand or theme.
 2. **Map**: Map these extracted core colors to the existing semantic tokens in `app_colors.dart` (e.g., `primary`, `secondary`, `surface`).
-3. **Consult**: Strictly prohibit hardcoding random hex values. If a new semantic token is genuinely needed to represent a consistent design pattern, consult the user rather than creating ad-hoc colors.
+3. **Consult**: Strictly prohibit hardcoding random hex values. If a new semantic token is genuinely needed to represent a consistent design pattern, consult the user rather than creating ad-hoc colors — see the `extend-theme` skill for the token-creation process.
 
 ### 2.2 Typography
 1. **Reuse**: Maximize reuse of existing styles in `AppTextTheme`.

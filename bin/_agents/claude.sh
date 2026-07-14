@@ -52,7 +52,9 @@ process_rules() {
 }
 
 # Helper function to process skills
-# Claude Code supports native skills via .claude/skills/<name>/SKILL.md
+# Claude Code supports native skills via .claude/skills/<name>/SKILL.md and
+# reads the `name`/`description` frontmatter to decide when to auto-invoke a
+# skill, so (unlike rules) the frontmatter must be preserved verbatim.
 process_skills() {
   local src_dir="$1"
 
@@ -66,8 +68,7 @@ process_skills() {
 
     mkdir -p "$output_dir"
 
-    # Claude Code: plain markdown, no frontmatter
-    fm_body "$skill_file" > "$output_file"
+    cp "$skill_file" "$output_file"
     record_generated "$MANIFEST" "$BASE_DIR" "$output_file"
   done < <(find "$src_dir" -name "SKILL.md" -print0 | sort -z)
 }
