@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # scripts/validate.sh
 #
-# Validates the agentx generators before release:
+# Validates the agentx content and generators before release:
 #   1. shellcheck (if available) on all shell scripts
-#   2. runs a full generation into a temp dir
-#   3. asserts the trigger -> vendor frontmatter mapping is correct
+#   2. checks that relative *.md links inside SKILL.md files resolve
+#   3. checks that rule/skill frontmatter has the required keys
+#   4. runs a full generation into a temp dir
+#   5. asserts the trigger -> vendor frontmatter mapping is correct
 #
 # Usage: bash scripts/validate.sh
 # Exits non-zero on the first failure.
@@ -53,13 +55,42 @@ else
   echo "  skip: shellcheck not installed"
 fi
 
-echo "== 2. generate =="
+echo "== 2. content: markdown links =="
+# Every relative *.md link inside a SKILL.md must resolve to a real file,
+# relative to the SKILL.md's own directory (catches wrong-path cross-refs
+# like `create-ui-widget.md` instead of `../create-ui-widget/SKILL.md`).
+while IFS= read -r -d '' skill_file; do
+  skill_dir="$(dirname "$skill_file")"
+  while IFS= read -r link; do
+    [[ "$link" =~ ^https?:// ]] && continue
+    target="${link%%#*}"
+    [[ -z "$target" ]] && continue
+    [[ -e "$skill_dir/$target" ]] || fail "broken link '$link' in $skill_file"
+  done < <(grep -oE '\]\([^)]*\.md[^)]*\)' "$skill_file" | sed -E 's/^\]\((.*)\)$/\1/')
+  ok "links resolve -> $skill_file"
+done < <(find "$REPO_ROOT/src" -name 'SKILL.md' -print0)
+
+echo "== 3. content: frontmatter =="
+# Every SKILL.md must declare name/description; every auto-trigger rule
+# must declare description (required so agents can decide relevance).
+while IFS= read -r -d '' skill_file; do
+  assert_contains "$skill_file" "name:"
+  assert_contains "$skill_file" "description:"
+done < <(find "$REPO_ROOT/src" -name 'SKILL.md' -print0)
+
+while IFS= read -r -d '' rule_file; do
+  if grep -qF -- "trigger: auto" "$rule_file"; then
+    assert_contains "$rule_file" "description:"
+  fi
+done < <(find "$REPO_ROOT/src/rules" "$REPO_ROOT/src/exclusive/rules" -name '*.md' -print0)
+
+echo "== 4. generate =="
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 bash "$REPO_ROOT/bin/agentx.sh" -e "$OUT" >/dev/null
 ok "generation succeeded"
 
-echo "== 3. cursor assertions =="
+echo "== 5. cursor assertions =="
 CR="$OUT/.cursor/rules"
 # always -> alwaysApply: true
 assert_contains "$CR/core/code.mdc" "alwaysApply: true"
@@ -72,7 +103,7 @@ assert_absent   "$CR/core/code.mdc" "trigger: always"
 # skills use <name>/SKILL.md layout
 assert_file "$OUT/.cursor/skills/create-feature/SKILL.md"
 
-echo "== 4. antigravity assertions =="
+echo "== 6. antigravity assertions =="
 AR="$OUT/.agents/rules"
 # always -> always_on, auto -> model_decision
 assert_contains "$AR/core_code.md" "trigger: always_on"
@@ -80,7 +111,7 @@ assert_contains "$AR/packages_riverpod_v3.md" "trigger: model_decision"
 assert_contains "$AR/packages_riverpod_v3.md" "description:"
 assert_file "$OUT/.agents/skills/create-feature/SKILL.md"
 
-echo "== 5. kiro assertions =="
+echo "== 7. kiro assertions =="
 KS="$OUT/.kiro/steering"
 # always -> inclusion: always, auto -> inclusion: auto + description
 assert_contains "$KS/core-code.md" "inclusion: always"
@@ -92,7 +123,7 @@ assert_absent   "$KS/core-code.md" "trigger: always"
 # skills are flattened to <name>.md in steering/
 assert_file "$KS/create-feature.md"
 
-echo "== 6. claude assertions =="
+echo "== 8. claude assertions =="
 CL="$OUT/.claude/rules"
 # rules: no frontmatter — plain markdown body only
 assert_contains "$CL/core_code.md" "# Code Standards"
@@ -103,7 +134,7 @@ assert_file "$OUT/.claude/skills/create-feature/SKILL.md"
 assert_contains "$OUT/.claude/skills/create-feature/SKILL.md" "name: create-feature"
 assert_contains "$OUT/.claude/skills/create-feature/SKILL.md" "description:"
 
-echo "== 7. --clean assertions =="
+echo "== 9. --clean assertions =="
 # Simulate a stale file from a prior run (recorded in the manifest) and a
 # hand-added user file (absent from the manifest).
 STALE="$OUT/.cursor/rules/core/stale.mdc"

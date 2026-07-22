@@ -13,7 +13,7 @@ This skill defines the process for adding new reusable UI widgets to the
 
 > [!NOTE]
 > For details on mapping Figma designs, typography, HSL colors, spacing,
-> and asset generation, refer to the [Design-to-Code Skill](design-to-code.md).
+> and asset generation, refer to the [Design-to-Code Skill](../design-to-code/SKILL.md).
 
 ## 1. Directory Structure
 
