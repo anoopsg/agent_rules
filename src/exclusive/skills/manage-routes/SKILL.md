@@ -9,7 +9,8 @@ description: >-
 
 This skill defines the process for adding, modifying,
 and guarding routes using GoRouter with the `_AppRoute`
-base class, `Routes` registry, and `_RouteComposer`.
+base class, `Routes` registry, and the priority-ordered
+`RouteGuard` list.
 
 ## 1. Directory Structure
 
@@ -89,6 +90,25 @@ final class _DetailRoute extends _AppRoute {
 }
 ```
 
+If the route should be gated by a capability rather than
+just login state, pass `requiredPermission`:
+
+```dart
+final class _SettingsRoute extends _AppRoute {
+  const _SettingsRoute()
+      : super(
+          path: '/settings',
+          name: 'settings',
+          requiredPermission: Permission.settingsView,
+        );
+
+  @override
+  Widget build(_, _) => const SettingsPage();
+}
+```
+
+See `manage-permissions` for the full RBAC model.
+
 ## 4. Step 2 — Register in Routes
 
 Add a `static const` entry in the `Routes` class inside
@@ -119,16 +139,37 @@ Routes.search.toGoRoute(),
 | `unauthenticatedRoutes` | Logged-out only | → `/` if logged in |
 | `authenticatedRoutes` | Logged-in only | → `/login` if logged out |
 
-### _RouteComposer & Platform Routing
+### Route Guards
 
-The `_RouteComposer` class handles platform-specific
+Cross-cutting gates that don't belong to a single shell are
+priority-ordered `RouteGuard`s (`lib/src/routes/guards/`),
+each owning exactly one gate:
+
+| Priority | Guard | Gate |
+|---|---|---|
+| 0 | `MaintenanceGuard` | Web-only maintenance mode |
+| 10 | `SplashGuard` | Mobile splash-complete |
+| 20 | `UpdateGuard` | Mobile forced update |
+| 30 | `OnboardingGuard` | Onboarding completion |
+| 40 | `PermissionGuard` | Per-route permission |
+
+To add a new gate, add a file implementing `RouteGuard` and
+one entry in the `guards` list in `router.dart` — existing
+guards never need to change. See
+ADR-0008
+for the full design rationale — this skill only covers the
+mechanics.
+
+### `_landingRoute()` & Platform Routing
+
+The `_landingRoute()` function handles platform-specific
 layouts. On mobile the landing page uses a
 `StatefulShellRoute.indexedStack` with bottom nav
 branches (home, explore, notifications, profile). On web
 it returns a single `Routes.home.toGoRoute()`.
 
 To add a new bottom-nav tab, add the route to the
-`branches` list inside `_RouteComposer.landing`.
+`branches` list inside `_landingRoute()`.
 
 ## 6. Step 4 — Re-generate
 
