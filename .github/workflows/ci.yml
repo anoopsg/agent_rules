@@ -4,14 +4,12 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '**.md'
       - 'LICENSE'
       - '.gitignore'
       - '.vscode/**'
   pull_request:
     branches: [main]
     paths-ignore:
-      - '**.md'
       - 'LICENSE'
       - '.gitignore'
       - '.vscode/**'

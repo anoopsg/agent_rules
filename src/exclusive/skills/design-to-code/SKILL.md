@@ -90,12 +90,12 @@ Break the design into reusable components. Before creating anything:
 6. **Imports**: Always consume via `package:app_ui/app_ui.dart`. Avoid internal file imports.
 
 > [!NOTE]
-> For widget implementation rules (naming, structure, exports, and code annotations), follow the [UI Widget Creation Skill](create-ui-widget.md).
+> For widget implementation rules (naming, structure, exports, and code annotations), follow the [UI Widget Creation Skill](../create-ui-widget/SKILL.md).
 
 ## 4. Feature Implementation
 
 ### 4.1 Feature Setup
-Follow the [Feature Creation Skill](create-feature.md) to set up the directory structure.
+Follow the [Feature Creation Skill](../create-feature/SKILL.md) to set up the directory structure.
 - Complex features (like Auth) should have sub-folders for each page (e.g., `auth/login/`).
 - **Permissions**: If the target feature folder does not exist, you **must** ask for user permission before creating the directory structure.
 
@@ -103,7 +103,7 @@ Follow the [Feature Creation Skill](create-feature.md) to set up the directory s
 Implement the view for the target platform (e.g., mobile):
 - `login_view.dart` (Mobile)
 - If required later, implement `login_view_web.dart` (Web).
-- Refer to [Feature Creation Skill](create-feature.md) for state binding and performance optimization (MemoizedView).
+- Refer to [Feature Creation Skill](../create-feature/SKILL.md) for state binding and performance optimization (MemoizedView).
 - Use `AppSpacing` and `AppAssets` consistently.
 
 ## 5. Figma Tracking (Manifest & Code)
@@ -120,7 +120,7 @@ last_sync: "<ISO 8601 timestamp>"
 ```
 
 ### 5.2 Component Tracking (Code-as-Truth)
-We do not use a centralized markdown table. Instead, components are tracked directly via doc-comment annotations (see [UI Widget Creation Skill](create-ui-widget.md#4)).
+We do not use a centralized markdown table. Instead, components are tracked directly via doc-comment annotations (see [UI Widget Creation Skill](../create-ui-widget/SKILL.md#4)).
 
 - **Tracking**: Ensure every new component has the strict 4-line `@UI`, `@Source`, `@Style`, and `@Layout` annotations directly above the class.
 

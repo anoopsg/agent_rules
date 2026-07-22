@@ -27,7 +27,7 @@ agent_rules/
 │   │   ├── flutter/          # Flutter-specific rules
 │   │   └── packages/         # Package-specific guidance
 │   │
-│   ├── skills/               # Core skills — always included
+│   ├── skills/               # Core skills — always included (scaffold; empty for now)
 │   │   └── <skill-name>/
 │   │       └── SKILL.md
 │   │
@@ -209,6 +209,10 @@ src/exclusive/skills/
 └── create-client/
     └── SKILL.md         # Launchpad skill
 ```
+
+> `src/skills/` is currently an empty scaffold reserved for future core
+> (always-on) skills — every skill shipped today lives under
+> `src/exclusive/skills/` and is opt-in via `--exclusive`.
 
 ---
 

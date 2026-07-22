@@ -180,7 +180,7 @@ class LoginNotifier extends _$LoginNotifier {
 
 ## 4. Routing
 
-Follow the [Routing Management Skill](manage-routes.md) to define the route
+Follow the [Routing Management Skill](../manage-routes/SKILL.md) to define the route
 class and register it in the appropriate group (`open`, `unauthenticated`,
 or `authenticated`).
 
