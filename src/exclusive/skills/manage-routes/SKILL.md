@@ -10,7 +10,7 @@ description: >-
 This skill defines the process for adding, modifying,
 and guarding routes using GoRouter with the `_AppRoute`
 base class, `Routes` registry, and the priority-ordered
-`RouteGuard` list.
+`GateGuard`/`RouteGuard` guards.
 
 ## 1. Directory Structure
 
@@ -141,24 +141,42 @@ Routes.search.toGoRoute(),
 
 ### Route Guards
 
-Cross-cutting gates that don't belong to a single shell are
-priority-ordered `RouteGuard`s (`lib/src/routes/guards/`),
-each owning exactly one gate:
+Cross-cutting gates that don't belong to a single shell come
+in two shapes (`lib/src/routes/guards/route_guard.dart`):
 
-| Priority | Guard | Gate |
-|---|---|---|
-| 0 | `MaintenanceGuard` | Web-only maintenance mode |
-| 10 | `SplashGuard` | Mobile splash-complete |
-| 20 | `UpdateGuard` | Mobile forced update |
-| 30 | `OnboardingGuard` | Onboarding completion |
-| 40 | `PermissionGuard` | Per-route permission |
+- **`GateGuard`** — owns one exclusive full-screen route
+  (`path`) and just answers whether it's currently active
+  (`isActive(AppState app)`), with no knowledge of the
+  current location. The router consults `gateGuards` in
+  priority order and acts on **only the first active one**
+  per redirect pass — never comparing multiple gates against
+  the path itself — so two gates can't fight over the screen.
+- **`RouteGuard`** — a per-route access check,
+  `redirect(AppState app, GoRouterState state)`, evaluated
+  only once every gate has resolved. `PermissionGuard` is the
+  only one today.
 
-To add a new gate, add a file implementing `RouteGuard` and
-one entry in the `guards` list in `router.dart` — existing
-guards never need to change. See
+| Priority | Guard | Shape | Gate |
+|---|---|---|---|
+| 0 | `MaintenanceGuard` | `GateGuard` | Web-only maintenance mode |
+| 10 | `SplashGuard` | `GateGuard` | Mobile splash-complete (never actively claims it — see its doc comment) |
+| 20 | `UpdateGuard` | `GateGuard` | Mobile forced update |
+| 30 | `OnboardingGuard` | `GateGuard` | Onboarding completion |
+| 40 | `PermissionGuard` | `RouteGuard` | Per-route permission |
+
+To add a new full-screen gate, add a file implementing
+`GateGuard` and one entry in the `gateGuards` list in
+`router.dart` — existing guards never need to change, and the
+router's stale-gate fallback (bounce home once no gate is
+active) picks it up automatically since it derives from
+`gateGuards` itself, not a separate path list. To add a new
+per-route access check, implement `RouteGuard` instead and add
+it to `accessGuards`. See
 ADR-0008
-for the full design rationale — this skill only covers the
-mechanics.
+for the original guard design and
+ADR-0016
+for why gates are arbitrated this way — this skill only
+covers the mechanics.
 
 ### `_landingRoute()` & Platform Routing
 
