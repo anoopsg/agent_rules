@@ -48,12 +48,8 @@ Update `kRolePermissions`:
 
 ```dart
 const kRolePermissions = <UserRole, Set<Permission>>{
-  UserRole.guest: {},
-  UserRole.standard: {
-    Permission.settingsView,
-    Permission.postsEdit,
-    Permission.reportsView,
-  },
+  .guest: {},
+  .standard: {.settingsView, .postsEdit, .reportsView},
 };
 ```
 
@@ -64,13 +60,12 @@ definition (see `manage-routes` for the general route-adding
 process):
 
 ```dart
-final class _ReportsRoute extends _AppRoute {
-  const _ReportsRoute()
-      : super(
-          path: '/reports',
-          name: 'reports',
-          requiredPermission: Permission.reportsView,
-        );
+final class const _ReportsRoute() extends _AppRoute {
+  this : super(
+    path: '/reports',
+    name: 'reports',
+    requiredPermission: .reportsView,
+  );
 
   @override
   Widget build(_, _) => const ReportsPage();
@@ -89,12 +84,12 @@ rather than blocking navigation), use `PermissionGate` or the
 
 ```dart
 PermissionGate(
-  permission: Permission.reportsView,
+  permission: .reportsView,
   child: const ReportsButton(),
 );
 
 // or, inside a ConsumerWidget:
-if (ref.hasPermission(Permission.reportsView)) {
+if (ref.hasPermission(.reportsView)) {
   // show the affordance
 }
 ```

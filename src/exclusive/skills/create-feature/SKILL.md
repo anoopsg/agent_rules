@@ -69,9 +69,7 @@ The `Page` widget delegates logic to `_Bindings`, which prepares the
 `ViewProps`.
 
 ```dart
-class MyFeaturePage extends StatelessWidget {
-  const MyFeaturePage({super.key});
-
+class const MyFeaturePage({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _Bindings(
@@ -110,11 +108,10 @@ class MyFeaturePage extends StatelessWidget {
 > `ref.read` inside the closure to ensure you have the fresh state.
 
 ```dart
-final class MyProps extends ViewProps {
-  const MyProps({required this.data, required this.onAction});
-  final String data;
-  final VoidCallback onAction;
-
+final class const MyProps({
+  required final String data,
+  required final VoidCallback onAction,
+}) extends ViewProps {
   // CRITICAL: Only include data fields. Do NOT include functions/callbacks here!
   @override
   List<Object?> get equalityProperties => [data]; // Exclude onAction
@@ -155,15 +152,11 @@ part 'login_notifier.g.dart';
 
 /// Local form state tracking for the Auth flow.
 @MappableClass()
-class LoginState with LoginStateMappable implements FailureInterface {
-  const LoginState({this.isLoggingIn = false, this.failure});
-
-  factory LoginState.loading() => const LoginState(isLoggingIn: true);
-
-  final bool isLoggingIn;
-
-  @override
-  final Failure? failure;
+class const LoginState({
+  final bool isLoggingIn = false,
+  @override final Failure? failure,
+}) with LoginStateMappable implements FailureInterface {
+  factory loading() => const LoginState(isLoggingIn: true);
 }
 
 @riverpod

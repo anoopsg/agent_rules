@@ -29,15 +29,10 @@ and equality. Models must be **immutable**.
 
 ```dart
 @MappableClass()
-class UserProfile with UserProfileMappable {
-  const UserProfile({
-    required this.id,
-    required this.email,
-  });
-
-  final String id;
-  final String email;
-}
+class const UserProfile({
+  required final String id,
+  required final String email,
+}) with UserProfileMappable;
 ```
 
 ## 3. Networking (Chopper)
@@ -81,7 +76,7 @@ Errors are centralized. You must define a technical code and its translation.
 
 1. **Register the Code** in `lib/src/infrastructure/error_codes.dart`:
 ```dart
-enum AppErrorCode implements ErrorCode {
+enum AppErrorCode(@override final String value) implements ErrorCode {
   myFeature404('myFeature404'), // Key in i18n
   // ...
 }
@@ -110,17 +105,14 @@ melos run translate
 
 4. **Define the Failure**:
 ```dart
-final class MyApiFailure extends Failure {
-  const MyApiFailure({super.error}) : super(code: AppErrorCode.myFeature404);
+final class const MyApiFailure({super.error}) extends Failure {
+  this : super(code: AppErrorCode.myFeature404);
 }
 ```
 
 ### 4.2 Implementation
 ```dart
-class MyRepository {
-  MyRepository({required MyService service}) : _service = service;
-  final MyService _service;
-
+class MyRepository({required final MyService _service}) {
   Future<Result<UserProfile, Failure>> getProfile() async {
     try {
       final response = await _service.getProfile();
