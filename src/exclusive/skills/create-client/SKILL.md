@@ -83,8 +83,5 @@ Clients are injected into repositories via their constructors. Repositories
 then use the client's clean methods to perform data operations.
 
 ```dart
-class MyRepository {
-  MyRepository({required MyPluginClient client}) : _client = client;
-  final MyPluginClient _client;
-}
+class MyRepository({required final MyPluginClient _client});
 ```

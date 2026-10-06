@@ -57,22 +57,17 @@ import 'package:flutter/material.dart';
 /// @Source: — | Status: manual
 /// @Style: Bg: surface | Radius: md
 /// @Layout: Padding: md
-class YzCard extends StatelessWidget {
-  const YzCard({
-    required this.title,
-    required this.onTap,
-    super.key,
-  });
-
-  final String title;
-  final VoidCallback onTap;
-
+class const YzCard({
+  required final String title,
+  required final VoidCallback onTap,
+  super.key,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const .all(AppSpacing.md),
         child: Text(title),
       ),
     );

@@ -51,7 +51,7 @@ error code defined in Dart:
 
 1. Add the code to `lib/src/infrastructure/error_codes.dart`:
    ```dart
-   enum AppErrorCode implements ErrorCode {
+   enum AppErrorCode(@override final String value) implements ErrorCode {
      myError('myError'),
    }
    ```

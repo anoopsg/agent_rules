@@ -31,11 +31,11 @@ holds `path`, `name`, and a `build` method. It also
 provides `toGoRoute()` for zero-boilerplate registration:
 
 ```dart
-abstract class _AppRoute {
-  const _AppRoute({required this.path, required this.name});
-  final String path;
-  final String name;
-
+abstract class const _AppRoute({
+  required final String path,
+  required final String name,
+  final Permission? requiredPermission,
+}) {
   Widget build(BuildContext context, GoRouterState state);
 
   GoRoute toGoRoute() => GoRoute(
@@ -65,9 +65,8 @@ Add a `final class` extending `_AppRoute` at the bottom of
 [routes.dart](../../lib/src/routes/routes.dart):
 
 ```dart
-final class _SearchRoute extends _AppRoute {
-  const _SearchRoute()
-      : super(path: '/search', name: 'search');
+final class const _SearchRoute() extends _AppRoute {
+  this : super(path: '/search', name: 'search');
 
   @override
   Widget build(_, _) => const SearchPage();
@@ -78,9 +77,8 @@ For routes with path parameters, extract them from
 `GoRouterState`:
 
 ```dart
-final class _DetailRoute extends _AppRoute {
-  const _DetailRoute()
-      : super(path: '/detail/:id', name: 'detail');
+final class const _DetailRoute() extends _AppRoute {
+  this : super(path: '/detail/:id', name: 'detail');
 
   @override
   Widget build(_, GoRouterState state) {
@@ -94,13 +92,12 @@ If the route should be gated by a capability rather than
 just login state, pass `requiredPermission`:
 
 ```dart
-final class _SettingsRoute extends _AppRoute {
-  const _SettingsRoute()
-      : super(
-          path: '/settings',
-          name: 'settings',
-          requiredPermission: Permission.settingsView,
-        );
+final class const _SettingsRoute() extends _AppRoute {
+  this : super(
+    path: '/settings',
+    name: 'settings',
+    requiredPermission: .settingsView,
+  );
 
   @override
   Widget build(_, _) => const SettingsPage();
