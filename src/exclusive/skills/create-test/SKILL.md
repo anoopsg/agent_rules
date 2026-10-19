@@ -16,21 +16,25 @@ Test files must mirror the `lib/src/` directory hierarchy under `test/`:
 
 ```text
 lib/src/
-└── infrastructure/
+└── features/
     └── auth/
-        └── auth_repository.dart
+        └── _self/
+            └── data/
+                └── auth_repository.dart
 
 test/src/
-└── infrastructure/
+└── features/
     └── auth/
-        └── auth_repository_test.dart
+        └── _self/
+            └── data/
+                └── auth_repository_test.dart
 ```
 
 All test files must end with the `_test.dart` suffix.
 
 ## 2. Mocking Guidelines
 
-- **Mocking Tool**: Use the `mockito` package for mocking infrastructure and
+- **Mocking Tool**: Use the `mockito` package for mocking repositories and
   external client dependencies.
 - **Generator**: Annotate test files with `@GenerateMocks` to auto-generate mocks
   using `build_runner`.
@@ -40,7 +44,7 @@ All test files must end with the `_test.dart` suffix.
 Annotate your test file's `main()` method with the dependencies to mock:
 
 ```dart
-import 'package:apple_project/src/infrastructure/auth/auth_repository.dart';
+import 'package:apple_project/src/features/auth/_self/data/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -97,5 +101,5 @@ void main() {
   ```
 - Run tests for a specific test file:
   ```bash
-  flutter test test/src/infrastructure/auth/auth_repository_test.dart
+  flutter test test/src/features/auth/_self/data/auth_repository_test.dart
   ```

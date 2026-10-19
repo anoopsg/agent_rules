@@ -19,6 +19,8 @@ If the feature is self-contained and doesn't require separate sub-modules,
 keep it flat under the feature root folder. No `_self` folder is used.
 ```text
 lib/src/features/settings/
+├── data/                # Repositories, services & models (create-infrastructure)
+│   └── data.dart
 ├── state/               # Domain-specific state
 │   └── settings_notifier.dart
 ├── view/                # UI implementation
@@ -38,6 +40,7 @@ views that host or wrap the sub-features.
 ```text
 lib/src/features/auth/
 ├── _self/               # Shared domain logic & state
+│   ├── data/            # Repositories, services & models (create-infrastructure)
 │   └── state/
 │       └── auth_notifier.dart  # Global auth status
 ├── login/               # Sub-domain feature
@@ -180,5 +183,6 @@ or `authenticated`).
 ## 5. Barrel Files (Exports)
 
 1. **Sub-domain level**: Export the notifier and the page.
-2. **Domain level**: Export `_self` and all sub-domain barrels.
+2. **Domain level**: Export the data barrel (`data/data.dart` or
+   `_self/data/data.dart`), `_self` state and all sub-domain barrels.
 3. **Global level** (`features/features.dart`): Export all domain barrels.

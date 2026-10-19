@@ -16,13 +16,13 @@ mechanics.
 
 ## 1. The Model
 
-- `UserRole` (`lib/src/infrastructure/auth/models/user_role.dart`):
+- `UserRole` (`lib/src/features/auth/_self/data/models/user_role.dart`):
   an enum of session roles (e.g. `guest`, `standard`).
-- `Permission` (`lib/src/infrastructure/auth/models/permission.dart`):
+- `Permission` (`lib/src/features/auth/_self/data/models/permission.dart`):
   an enum of capabilities (e.g. `settingsView`, `postsEdit`).
   Routes and widgets declare a `Permission`, never a
   `UserRole` directly.
-- `kRolePermissions` (`lib/src/infrastructure/auth/models/role_permissions.dart`):
+- `kRolePermissions` (`lib/src/features/auth/_self/data/models/role_permissions.dart`):
   a single static `Map<UserRole, Set<Permission>>` — the one
   source of truth for what each role can do.
 - `AppState.permissions` derives the current session's

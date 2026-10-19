@@ -1,13 +1,13 @@
 ---
 name: provide-mock-data
-description: Process for creating mock data sources in the infrastructure layer.
+description: Process for creating mock data sources in a feature's data layer.
 ---
 
 # Provide Mock Data
 
 When you need to create mock data for development or prototyping, follow these guidelines:
 
-1. **Location**: Place mock data files inside the `lib/src/infrastructure/_mock/` directory.
+1. **Location**: Place mock data files inside the feature's data `mocks/` directory (e.g. `lib/src/features/notifications/data/mocks/`).
 2. **Naming**: Name the file using the domain name suffixed with `_mock.dart` (e.g., `notifications_mock.dart`).
 3. **Structure**: 
    - Provide a pure function or constants to generate the mock data.

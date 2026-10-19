@@ -1,27 +1,27 @@
 ---
 name: create-client
-description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/_clients/ directory. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a service to the client barrel file.
+description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/clients/ directory. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a service to the client barrel file.
 ---
 
 # Client Creation Skill
 
 This skill defines the process for creating a new low-level client in the 
-`infrastructure/_clients/` directory.
+`infrastructure/clients/` directory.
 
 ## 1. Overview
 
 Clients are high-level wrappers around third-party plugins or system APIs 
 (e.g., `shared_preferences`, `dio`, `package_info`). They encapsulate the 
 configuration and complexity of these tools, providing a clean interface 
-for the rest of the infrastructure layer.
+for feature repositories.
 
 ## 2. Directory Structure
 
-Clients are stored in `lib/src/infrastructure/_clients/`:
+Clients are stored in `lib/src/infrastructure/clients/`:
 
 ```text
-lib/src/infrastructure/_clients/
-├── _clients.dart        # Barrel file
+lib/src/infrastructure/clients/
+├── clients.dart         # Barrel file
 ├── my_plugin_client.dart # The client implementation
 └── ...
 ```
@@ -71,7 +71,7 @@ class MyPluginClient {
 
 ## 4. Barrel File
 
-Always export your new client in `lib/src/infrastructure/_clients/_clients.dart`:
+Always export your new client in `lib/src/infrastructure/clients/clients.dart`:
 
 ```dart
 export 'my_plugin_client.dart';
