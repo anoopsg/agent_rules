@@ -1,26 +1,32 @@
 ---
 name: create-infrastructure
-description: Creates new domains in the infrastructure layer using dart_mappable for models, Chopper for networking, and Riverpod for repositories. Use when the user asks to create a repository, API service, data model, or set up new infrastructure components.
+description: Creates a feature's data layer (models, API services, repositories) using dart_mappable for models, Chopper for networking, and Riverpod for repositories. Use when the user asks to create a repository, API service, data model, or set up new infrastructure components.
 ---
 
 # Infrastructure Creation Skill
 
-This skill defines the process for creating a new domain in the 
-`infrastructure/` layer, covering models, networking, and repositories.
+This skill defines the process for creating a feature's data layer,
+covering models, networking, and repositories. Shared low-level clients
+live in `lib/src/infrastructure/` (see the create-client skill).
 
 ## 1. Directory Structure
 
-Infrastructure is organized by domain in `lib/src/infrastructure/`:
+Each feature owns its data layer inside `lib/src/features/`. A flat
+feature (e.g. `settings`) uses `data/`; a feature group with sub-features
+(e.g. `auth`) uses `_self/data/`:
 
 ```text
-lib/src/infrastructure/my_domain/
+lib/src/features/my_domain/data/   # or my_domain/_self/data/ for a group
 ├── models/             # DTOs and Domain Models
 │   └── user_model.dart # Uses dart_mappable
 ├── services/           # Remote API definitions (Chopper)
 │   └── my_service.dart
+├── mocks/              # Optional mock data (see provide-mock-data)
 ├── my_repository.dart  # Business logic interface
-└── my_domain.dart      # Barrel file
+└── data.dart           # Barrel file
 ```
+
+Export `data.dart` from the feature barrel (e.g. `my_domain.dart`).
 
 ## 2. Data Modeling (dart_mappable)
 
@@ -52,7 +58,7 @@ abstract class MyService extends ChopperService {
 ```
 
 ### 3.2 Register the Service
-Add the service to `apiClient` in `lib/src/infrastructure/_clients/api_client.dart`:
+Add the service to `apiClient` in `lib/src/infrastructure/clients/api_client.dart`:
 ```dart
 @Riverpod(keepAlive: true)
 ApiClient apiClient(Ref ref) {
@@ -68,7 +74,9 @@ ApiClient apiClient(Ref ref) {
 
 Repositories bridge the gap between clients (API, Storage) and the Features.
 
-- **Rule**: NEVER import from `src/features/` into `src/infrastructure/`.
+- **Rule**: The data layer must not import its feature's `state/` or `view/`.
+  `src/infrastructure/` must not import feature code, except `api_client.dart`
+  registering services.
 - **Pattern**: Return `Result<T, Failure>` for operations that can fail.
 
 ### 4.1 Define Error Codes & Failures
