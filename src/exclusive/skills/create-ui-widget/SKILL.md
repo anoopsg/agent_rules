@@ -22,28 +22,29 @@ Widgets must be placed in `packages/app_ui/lib/src/widgets/` by category:
 ```text
 packages/app_ui/lib/src/widgets/
 ├── buttons/
-│   └── primary_button.dart    # Class name: YzPrimaryButton
+│   └── primary_button.dart    # Class name: PrimaryButton
 ├── layout/
 │   └── web/
-│       └── scaffold_web.dart  # Class name: YzScaffoldWeb
+│       └── scaffold_web.dart  # Class name: AppScaffoldWeb
 ```
 
 ## 2. Implementation Rules
 
 Follow these rules when implementing a widget in `app_ui`:
 
-- **Naming**: Class names must prefix with `Yz` (e.g. `YzPrimaryButton`). File
-  names must be `snake_case` without `yz_` prefix (e.g. `primary_button.dart`).
-- **Generic Naming**: Always use generic, domain-agnostic names for widgets. For example, name a button `YzPrimaryButton` rather than `YzLoginButton`, even if it is currently only used on a specific screen.
+- **Naming**: Class names have no prefix (e.g. `PrimaryButton`). If a name
+  clashes with a Material widget, prefix it with `App` (e.g. `AppScaffold`).
+  File names must be `snake_case` (e.g. `primary_button.dart`).
+- **Generic Naming**: Always use generic, domain-agnostic names for widgets. For example, name a button `PrimaryButton` rather than `LoginButton`, even if it is currently only used on a specific screen.
 - **Web suffix**: If a web variant exists for a shared concept, append `Web`
-  (e.g., `YzScaffoldWeb`).
+  (e.g., `AppScaffoldWeb`).
 - **No Helper Functions**: Do not use helper methods like `_buildHeader()`.
   Split components into **private classes** (e.g., `_Header`) within the same
   file (this applies to widgets inside `app_ui`, NOT feature views).
 - **Externalize Text**: Never hardcode user-facing strings in `app_ui`. Always
   pass them as parameters so the feature views can handle translations.
 - **Configuration Models**: If a widget has complex parameters, create a
-  dedicated config class in the same file (e.g., `YzPanelConfig`).
+  dedicated config class in the same file (e.g., `PanelConfig`).
 
 ### 2.1 Example Implementation
 
@@ -57,7 +58,7 @@ import 'package:flutter/material.dart';
 /// @Source: — | Status: manual
 /// @Style: Bg: surface | Radius: md
 /// @Layout: Padding: md
-class const YzCard({
+class const ContentCard({
   required final String title,
   required final VoidCallback onTap,
   super.key,

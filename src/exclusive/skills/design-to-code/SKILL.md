@@ -77,7 +77,7 @@ Break the design into reusable components. Before creating anything:
 
 1. **Logical Structuring**: Do not blindly mirror the exact layer structure of the Figma file. Designers sometimes take shortcuts or use non-logical groupings. Analyze the layout logically and implement a clean, efficient Flutter structure.
 2. **Extract BEFORE Implementing View**: If Figma has a distinct frame/group (e.g., complex forms, headers, custom inputs, distinct visual blocks), you MUST extract it to `packages/app_ui/lib/src/widgets/` **before** writing the feature's `_view.dart` file. The `_view.dart` file must ONLY compose pre-built `app_ui` widgets. DO NOT build UI blocks directly inside `_view.dart` and absolutely DO NOT create private widget classes (e.g., `_FeatureHeader`, `_CustomAction`) inside the `_view.dart` file.
-3. **Generic Naming**: Always use generic, domain-agnostic names for extracted widgets. For example, name a button `YzPrimaryButton` rather than `YzLoginButton`, or `YzIconButton` rather than `_UserAvatarButton`, even if it is currently only used on a specific screen.
+3. **Generic Naming**: Always use generic, domain-agnostic names for extracted widgets. For example, name a button `PrimaryButton` rather than `LoginButton`, or `AppIconButton` rather than `_UserAvatarButton`, even if it is currently only used on a specific screen.
 4. **Widget Properties**: Default dimensions (height, width, etc.) should be defined as constructor properties with their default values set directly in the constructor. Do not define them as private constants outside the class (e.g., avoid `const _headerHeight = 295.0;`).
 5. **Check Widgets**: Verify `packages/app_ui/lib/src/widgets/` for existing components and their design `@Source`.
    * Use `grep_search` to find matching `@Source` breadcrumbs (e.g., `Login > Hero > CTA`).
@@ -87,7 +87,7 @@ Break the design into reusable components. Before creating anything:
    * **Search**: Use `grep_search` on the widgets directory for specific `@Style` or `@Layout` tokens (e.g., `@Style:.*Bg: primary`).
    * **Inspect**: Use `view_file` to read the specific candidate `.dart` files to verify properties.
    If the element visually matches, reuse that class. Do **not** create a duplicate.
-6. **Imports**: Always consume via `package:app_ui/app_ui.dart`. Avoid internal file imports.
+6. **Imports**: Always consume via `import 'package:app_ui/app_ui.dart' as ui;` and reference symbols with the prefix (e.g. `ui.PrimaryButton`, `ui.AppSpacing.md`). Avoid internal file imports.
 
 > [!NOTE]
 > For widget implementation rules (naming, structure, exports, and code annotations), follow the [UI Widget Creation Skill](../create-ui-widget/SKILL.md).
