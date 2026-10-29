@@ -45,6 +45,8 @@ Follow these rules when implementing a widget in `app_ui`:
   pass them as parameters so the feature views can handle translations.
 - **Configuration Models**: If a widget has complex parameters, create a
   dedicated config class in the same file (e.g., `PanelConfig`).
+- **Reuse Primitives**: Compose existing `app_ui` primitives instead of
+  re-creating them (e.g. `Loader`, never `CircularProgressIndicator`).
 
 ### 2.1 Example Implementation
 

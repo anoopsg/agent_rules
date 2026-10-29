@@ -11,10 +11,9 @@ description: >
 
 ### 1.1 Organization
 All assets must be placed in the `packages/app_ui/assets/` directory following this structure:
-- **SVGs**: `assets/svg/`
-- **Icons**: `assets/svg/icons/`
-- **SVG Images**: `assets/svg/images/`
-- **Raster Images**: `assets/images/` (PNG, JPEG, WebP — e.g., photos, hero banners)
+- **Icons**: `assets/icons/` (SVG)
+- **Images**: `assets/images/` (SVG illustrations and PNG, JPEG, WebP — e.g., photos, hero banners)
+- **Animations**: `assets/animations/`
 - **No Feature Folders**: Do not create feature-specific subfolders (e.g., `login/`, `auth/`) within these asset directories. Keep the structure flat by asset type to avoid issues if an asset is later reused in another feature.
 
 ### 1.2 Verification & Generation
@@ -36,8 +35,9 @@ When extracting from Figma via the MCP server, assets might not be marked for ex
 3. **Notification**: Explicitly notify the user that the asset was missing from the exportable Figma assets and request they mark it for export or provide it manually. **NEVER** use the Figma MCP API asset URL (`https://www.figma.com/api/mcp/asset/...`) directly in the code (e.g. via `Image.network`).
 
 ### 1.4 Asset Usage
-1. **No Local Package Constants**: NEVER define `const _kUiPackage = 'app_ui';` locally.
-2. **Use Exported `kUiPackage`**: Rely on the exported `kUiPackage` from `app_ui` when required, but avoid using it outside the package if possible.
+1. **No `package:` Argument**: Generated asset widgets already resolve to `app_ui`. Never pass `package:` or define a package constant.
+2. **Tint Icons**: Use `colorFilter: ColorFilter.mode(context.$.colors.x, BlendMode.srcIn)`; never edit the SVG or hardcode colors.
+3. **Material Icons**: Use `Icon(Icons.x)` for stock Material icons instead of exporting SVGs.
 
 ## 2. Typography & Colors
 
@@ -71,6 +71,12 @@ If the design lacks a defined palette or uses inconsistent, ad-hoc hex codes (e.
 4. **Direct Localization**: Use localization directly within the respective `_view.dart` files (or their specific local widgets). **NEVER** pass translated strings down from parent pages or via `ViewProps`.
 5. **Generation**: Run `melos run translate` after updating translation files.
 
+### 2.5 Motion & Animation
+1. **Animate State Changes**: State changes shown in prototype connections or variants (e.g. `Default` → `Loading`) must animate, not snap.
+2. **Prefer Implicit Widgets**: Use `AnimatedContainer`, `AnimatedSwitcher`, `AnimatedOpacity`, `AnimatedList`, `Hero`, etc. before an `AnimationController`.
+3. **Motion Tokens**: Use `ui.AppDurations` and `ui.AppCurves`, wrapped in `ui.AppDurations.resolve(context, ...)` for reduced motion. Never hardcode `Duration` or `Curves.*`.
+4. **Route Transitions**: Use `CustomTransitionPage` only when the design specifies a non-default transition.
+
 ## 3. Atomic Design & Widgets
 
 Break the design into reusable components. Before creating anything:
@@ -87,7 +93,8 @@ Break the design into reusable components. Before creating anything:
    * **Search**: Use `grep_search` on the widgets directory for specific `@Style` or `@Layout` tokens (e.g., `@Style:.*Bg: primary`).
    * **Inspect**: Use `view_file` to read the specific candidate `.dart` files to verify properties.
    If the element visually matches, reuse that class. Do **not** create a duplicate.
-6. **Imports**: Always consume via `import 'package:app_ui/app_ui.dart' as ui;` and reference symbols with the prefix (e.g. `ui.PrimaryButton`, `ui.AppSpacing.md`). Avoid internal file imports.
+7. **Loading Indicators**: Use `ui.Loader` for every spinner. Never use `CircularProgressIndicator` or a custom loader.
+8. **Imports**: Always consume via `import 'package:app_ui/app_ui.dart' as ui;` and reference symbols with the prefix (e.g. `ui.PrimaryButton`, `ui.AppSpacing.md`). Avoid internal file imports.
 
 > [!NOTE]
 > For widget implementation rules (naming, structure, exports, and code annotations), follow the [UI Widget Creation Skill](../create-ui-widget/SKILL.md).

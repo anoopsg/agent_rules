@@ -58,7 +58,7 @@ abstract class MyService extends ChopperService {
 ```
 
 ### 3.2 Register the Service
-Add the service to `apiClient` in `lib/src/infrastructure/clients/api_client.dart`:
+Add the service to `apiClient` in `lib/src/infrastructure/network/api_client.dart`:
 ```dart
 @Riverpod(keepAlive: true)
 ApiClient apiClient(Ref ref) {
@@ -153,5 +153,5 @@ sensitive data (tokens). Always use **`AppKeys`** for storage keys.
 
 ```dart
 final storage = ref.watch(storageClientProvider);
-await storage.write(AppKeys.settings, 'value');
+await storage.save(AppKeys.settings, 'value');
 ```

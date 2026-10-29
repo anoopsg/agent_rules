@@ -1,12 +1,12 @@
 ---
 name: create-client
-description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/clients/ directory. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a service to the client barrel file.
+description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/ network, storage or device folders. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a client to an infrastructure barrel file.
 ---
 
 # Client Creation Skill
 
-This skill defines the process for creating a new low-level client in the 
-`infrastructure/clients/` directory.
+This skill defines the process for creating a new low-level client in
+`lib/src/infrastructure/`.
 
 ## 1. Overview
 
@@ -17,14 +17,19 @@ for feature repositories.
 
 ## 2. Directory Structure
 
-Clients are stored in `lib/src/infrastructure/clients/`:
+Clients are grouped by concern under `lib/src/infrastructure/`:
 
 ```text
-lib/src/infrastructure/clients/
-├── clients.dart         # Barrel file
-├── my_plugin_client.dart # The client implementation
-└── ...
+lib/src/infrastructure/
+├── network/              # HTTP, sockets (network.dart barrel)
+├── storage/              # Local persistence (storage.dart barrel)
+├── device/               # OS, hardware, platform (device.dart barrel)
+└── infrastructure.dart   # Re-exports every barrel
 ```
+
+Add a new folder (with barrel, exported from `infrastructure.dart`) only
+if a client fits none of these. Pure logic with no plugin or I/O is not a
+client; put it in `lib/src/utils/`.
 
 ## 3. Implementation Pattern
 
@@ -71,11 +76,14 @@ class MyPluginClient {
 
 ## 4. Barrel File
 
-Always export your new client in `lib/src/infrastructure/clients/clients.dart`:
+Export your new client from its folder's barrel (e.g. `device/device.dart`):
 
 ```dart
 export 'my_plugin_client.dart';
 ```
+
+Features import `infrastructure.dart`; files inside `infrastructure/`
+import the specific barrel. Clients never import feature code.
 
 ## 5. Usage in Repositories
 
