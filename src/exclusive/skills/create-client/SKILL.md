@@ -1,6 +1,6 @@
 ---
 name: create-client
-description: Creates low-level wrappers around third-party plugins or system APIs in the infrastructure/ network, storage or device folders. Use when the user asks to create or modify an infrastructure client, implement a plugin wrapper, or add a client to an infrastructure barrel file.
+description: Creates a low-level client that wraps a third-party plugin or system API in lib/src/infrastructure/ (storage, device, network). Use when wrapping a plugin, adding or changing a client, or exporting one from an infrastructure barrel. For backend API calls use add-api-endpoint.
 ---
 
 # Client Creation Skill
@@ -11,7 +11,7 @@ This skill defines the process for creating a new low-level client in
 ## 1. Overview
 
 Clients are high-level wrappers around third-party plugins or system APIs 
-(e.g., `shared_preferences`, `dio`, `package_info`). They encapsulate the 
+(e.g., `shared_preferences`, `flutter_secure_storage`, `package_info_plus`). They encapsulate the 
 configuration and complexity of these tools, providing a clean interface 
 for feature repositories.
 
@@ -21,11 +21,17 @@ Clients are grouped by concern under `lib/src/infrastructure/`:
 
 ```text
 lib/src/infrastructure/
-├── network/              # HTTP, sockets (network.dart barrel)
+├── api/                  # Backend ApiClient & adapters (api.dart barrel)
+├── network/              # HTTP client (http/), session expiry (network.dart barrel)
 ├── storage/              # Local persistence (storage.dart barrel)
 ├── device/               # OS, hardware, platform (device.dart barrel)
+├── error_codes.dart      # AppErrorCode
 └── infrastructure.dart   # Re-exports every barrel
 ```
+
+`api/` is not a client group: it holds the backend `ApiClient` and its
+transport adapters. A new backend call goes there through the
+add-api-endpoint skill, not into a new client.
 
 Add a new folder (with barrel, exported from `infrastructure.dart`) only
 if a client fits none of these. Pure logic with no plugin or I/O is not a
@@ -83,7 +89,8 @@ export 'my_plugin_client.dart';
 ```
 
 Features import `infrastructure.dart`; files inside `infrastructure/`
-import the specific barrel. Clients never import feature code.
+import the specific barrel. Clients never import feature code; only
+`lib/src/infrastructure/api/` does, because it returns feature models.
 
 ## 5. Usage in Repositories
 
@@ -92,4 +99,19 @@ then use the client's clean methods to perform data operations.
 
 ```dart
 class MyRepository({required final MyPluginClient _client});
+
+@Riverpod(keepAlive: true)
+MyRepository myRepository(Ref ref) {
+  return MyRepository(client: ref.watch(myPluginClientProvider));
+}
 ```
+
+## 6. Verify
+
+```bash
+melos run generate
+melos run analyze
+```
+
+Add a test under `test/src/infrastructure/<group>/`, mirroring a sibling
+client's test (see the create-test skill).

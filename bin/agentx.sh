@@ -4,34 +4,27 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-RULES_DIR="${RULES_DIR:-$PROJECT_ROOT/src/rules}"
-SKILLS_DIR="${SKILLS_DIR:-$PROJECT_ROOT/src/skills}"
-EXCLUSIVE_DIR="${EXCLUSIVE_DIR:-$PROJECT_ROOT/src/exclusive}"
+SRC_DIR="$PROJECT_ROOT/src"
+ALL_TARGETS=(antigravity claude cursor kiro)
 
 VERSION="dev"
 REPO_NAME="anoopsg/agent_rules"
 OUTPUT_DIR=""
-GEN_ANTIGRAVITY=true
-GEN_CLAUDE=true
-GEN_CURSOR=true
-GEN_KIRO=true
+TARGETS=()
 GEN_EXCLUSIVE=false
 GEN_CLEAN=false
-TARGETS_SET=false
 
-# Banner color only, disabled when stdout is not a TTY or NO_COLOR is set.
+# Color only on a TTY, and never with NO_COLOR.
 if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
   C_CYAN=$'\033[36m'; C_RESET=$'\033[0m'
 else
   C_CYAN=""; C_RESET=""
 fi
 
-# Human-readable version label.
 version_label() {
   if [[ "$VERSION" == "dev" ]]; then echo "dev"; else echo "v$VERSION"; fi
 }
 
-# Prints the ASCII banner. Uses a quoted heredoc so the art is literal.
 show_banner() {
   printf '%s' "$C_CYAN"
   cat <<'BANNER'
@@ -47,8 +40,6 @@ BANNER
     "$(version_label)"
 }
 
-## Maps shorthand or full target name to the canonical name.
-## Returns 1 for unknown targets.
 resolve_target() {
   case "$1" in
     ag|antigravity) echo "antigravity" ;;
@@ -95,70 +86,21 @@ EXAMPLES
 EOF
 }
 
-# Prints a "✔ <label> → <path>" status line.
-gen_status() {
-  printf '  %-12s -> %s\n' "$1" "$2"
+# Subshell keeps each vendor's functions from leaking into the next.
+run_target() {
+  local sources=("$SRC_DIR")
+  [[ "$GEN_EXCLUSIVE" == true ]] && sources+=("$SRC_DIR/exclusive")
+  (
+    source "$SCRIPT_DIR/_agents/_lib.sh"
+    # shellcheck disable=SC1090
+    source "$SCRIPT_DIR/_agents/$1.sh"
+    generate "$OUTPUT_DIR" "$GEN_CLEAN" "${sources[@]}"
+    printf '  %-12s -> %s\n' "$1" "$OUTPUT_DIR/$VENDOR_DIR"
+  )
 }
 
-generate_antigravity() {
-  local exclusive_path=""
-  if [ "$GEN_EXCLUSIVE" = true ]; then
-    exclusive_path="$EXCLUSIVE_DIR"
-  fi
-  bash "$SCRIPT_DIR/_agents/antigravity.sh" \
-    "$RULES_DIR" \
-    "$SKILLS_DIR" \
-    "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$GEN_CLEAN" >/dev/null
-  gen_status "Antigravity" "$OUTPUT_DIR/.agents"
-}
-
-generate_claude() {
-  local exclusive_path=""
-  if [ "$GEN_EXCLUSIVE" = true ]; then
-    exclusive_path="$EXCLUSIVE_DIR"
-  fi
-  bash "$SCRIPT_DIR/_agents/claude.sh" \
-    "$RULES_DIR" \
-    "$SKILLS_DIR" \
-    "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$GEN_CLEAN" >/dev/null
-  gen_status "Claude" "$OUTPUT_DIR/.claude"
-}
-
-generate_cursor() {
-  local exclusive_path=""
-  if [ "$GEN_EXCLUSIVE" = true ]; then
-    exclusive_path="$EXCLUSIVE_DIR"
-  fi
-  bash "$SCRIPT_DIR/_agents/cursor.sh" \
-    "$RULES_DIR" \
-    "$SKILLS_DIR" \
-    "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$GEN_CLEAN" >/dev/null
-  gen_status "Cursor" "$OUTPUT_DIR/.cursor"
-}
-
-generate_kiro() {
-  local exclusive_path=""
-  if [ "$GEN_EXCLUSIVE" = true ]; then
-    exclusive_path="$EXCLUSIVE_DIR"
-  fi
-  bash "$SCRIPT_DIR/_agents/kiro.sh" \
-    "$RULES_DIR" \
-    "$SKILLS_DIR" \
-    "$OUTPUT_DIR" \
-    "$exclusive_path" \
-    "$GEN_CLEAN" >/dev/null
-  gen_status "Kiro" "$OUTPUT_DIR/.kiro/steering"
-}
-
-# Self-update: downloads and replaces the current binary with the latest
-# GitHub release. Only works in the compiled bundle (AGENTX_SELF_PATH must
-# be set by the wrapper stub in release.sh).
+# Replaces the bundled binary with the latest release. AGENTX_SELF_PATH is
+# set by the release stub, so this only works for the bundle.
 do_update() {
   if [[ -z "${AGENTX_SELF_PATH:-}" ]]; then
     echo "Error: --update is only supported for the compiled agentx binary."
@@ -196,8 +138,6 @@ do_update() {
     exit 1
   fi
 
-  # Read the remote version from the plain-text stub header.
-  # The release build embeds: # agentx-version: X.Y.Z
   local new_version
   new_version=$(
     sed -n 's/^# agentx-version: *//p' "$tmp_bin"
@@ -231,27 +171,14 @@ main() {
           echo "Error: --targets requires a value." >&2
           exit 1
         fi
-        # First -t disables defaults; parse targets
-        if [[ "$TARGETS_SET" = false ]]; then
-          GEN_ANTIGRAVITY=false
-          GEN_CLAUDE=false
-          GEN_CURSOR=false
-          GEN_KIRO=false
-          TARGETS_SET=true
-        fi
         IFS=',' read -ra _targets <<< "$1"
         for _t in "${_targets[@]}"; do
           _resolved="$(resolve_target "$_t")" || {
             echo "Error: unknown target '$_t'." >&2
-            echo "Valid: antigravity (ag), cursor (cu), kiro (kr)" >&2
+            echo "Valid: antigravity (ag), claude (cl), cursor (cu), kiro (kr)" >&2
             exit 1
           }
-          case "$_resolved" in
-            antigravity) GEN_ANTIGRAVITY=true ;;
-            claude)      GEN_CLAUDE=true ;;
-            cursor)      GEN_CURSOR=true ;;
-            kiro)        GEN_KIRO=true ;;
-          esac
+          TARGETS+=("$_resolved")
         done
         shift
         ;;
@@ -302,7 +229,6 @@ main() {
     exit 1
   fi
 
-  # Warn when generating into the repo root.
   local resolved_output
   resolved_output="$(
     cd "${OUTPUT_DIR}" 2>/dev/null && pwd || echo ""
@@ -318,19 +244,11 @@ main() {
   [[ "$GEN_CLEAN" = true ]] && mode="clean + generate"
   echo "agentx $mode ($(version_label))"
 
-  # Execute generation
-  if [ "$GEN_ANTIGRAVITY" = true ]; then
-    generate_antigravity
-  fi
-  if [ "$GEN_CLAUDE" = true ]; then
-    generate_claude
-  fi
-  if [ "$GEN_CURSOR" = true ]; then
-    generate_cursor
-  fi
-  if [ "$GEN_KIRO" = true ]; then
-    generate_kiro
-  fi
+  [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=("${ALL_TARGETS[@]}")
+  local target
+  for target in $(printf '%s\n' "${TARGETS[@]}" | sort -u); do
+    run_target "$target"
+  done
 
   echo "Done."
 }

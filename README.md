@@ -40,10 +40,11 @@ agent_rules/
 └── bin/
     ├── agentx.sh             # Main CLI entrypoint
     └── _agents/
-        ├── antigravity.sh    # Antigravity generator
-        ├── claude.sh         # Claude Code CLI generator
-        ├── cursor.sh         # Cursor generator
-        └── kiro.sh           # Kiro generator
+        ├── _lib.sh           # Shared generator
+        ├── antigravity.sh    # Rule format per vendor
+        ├── claude.sh
+        ├── cursor.sh
+        └── kiro.sh
 ```
 
 ---
@@ -139,10 +140,12 @@ Rules and skills are compiled into the following output directories:
 
 | Agent | Rules | Skills |
 |---|---|---|
-| **Antigravity** | `.agents/rules/*.md` | `.agents/skills/<name>/SKILL.md` |
-| **Claude** | `.claude/rules/*.md` | `.claude/skills/<name>/SKILL.md` |
-| **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/<name>/SKILL.md` |
-| **Kiro** | `.kiro/steering/*.md` | `.kiro/steering/<name>.md` |
+| **Antigravity** | `.agents/rules/*.md` | `.agents/skills/<name>/` |
+| **Claude** | `.claude/rules/*.md` | `.claude/skills/<name>/` |
+| **Cursor** | `.cursor/rules/**/*.mdc` | `.cursor/skills/<name>/` |
+| **Kiro** | `.kiro/steering/*.md` | `.kiro/skills/<name>/` |
+
+Skills are copied as-is (all four read the [Agent Skills](https://agentskills.io) layout).
 
 ### Regenerating & the `--clean` flag
 
@@ -197,18 +200,13 @@ description: When this rule should apply (required for `auto`).
 
 ### Skills
 
-Skills are directories containing a single `SKILL.md` file. The directory
-name becomes the skill identifier in the output.
+A skill is a folder with a `SKILL.md` (`name` matching the folder, one-line
+`description`) and optional `scripts/`, `references/` and `assets/`.
 
-```
-src/skills/
-└── <skill-name>/
-    └── SKILL.md         # Core skill instructions
-
-src/exclusive/skills/
-└── create-client/
-    └── SKILL.md         # Launchpad skill
-```
+Launchpad skills must not copy template code. Point to a live example with a
+`grep`, use `<placeholders>` for example paths, keep `SKILL.md` short and move
+rare detail to `references/`. `scripts/check_refs.sh <launchpad_project>`
+fails when a path or `grep` in a skill stops matching the template.
 
 > `src/skills/` is currently an empty scaffold reserved for future core
 > (always-on) skills — every skill shipped today lives under
