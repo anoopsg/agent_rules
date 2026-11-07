@@ -1,9 +1,6 @@
 ---
 trigger: auto
-description: >
-  Flutter UI performance guidelines. Apply when
-  optimizing rendering performance or reviewing
-  widget build methods.
+description: Flutter UI performance guidelines. Apply when optimizing rendering performance or reviewing widget build methods.
 ---
 
 # Flutter Performance

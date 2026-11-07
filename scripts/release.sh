@@ -1,47 +1,29 @@
 #!/usr/bin/env bash
-# scripts/release.sh
-#
-# Bundles bin/ and src/ into a single self-extracting
-# shell script suitable for GitHub Releases (no git clone required).
-#
-# Usage:
-#   bash scripts/release.sh [<version>]
-#
-# Output:
-#   dist/agentx                 – the self-extracting executable
-#
-# Requirements: bash, tar, gzip, base64 (all standard on macOS/Linux)
+# Bundles bin/ and src/ into dist/agentx, a self-extracting script.
+# Usage: scripts/release.sh [version]   (defaults to the latest v* tag)
 
 set -euo pipefail
 
-# ── Paths ──────────────────────────────────────────────────────────────
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$REPO_ROOT/dist"
 OUTPUT_FILE="$DIST_DIR/agentx"
 VERSION="${1:-}"
 if [[ -z "$VERSION" ]]; then
-  # Try to get the latest tag matching v* from git
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     VERSION=$(git describe --tags --abbrev=0 2>/dev/null || \
       git tag -l "v*" | sort -V | tail -n1 || echo "")
   fi
-  # Fallback to dev if no tag is found
   if [[ -z "$VERSION" ]]; then
     VERSION="dev"
   fi
 fi
 
-# Clean up version string (remove 'v' prefix if present for the echo)
 CLEAN_VERSION="${VERSION#v}"
 
-# ── Resolve repo owner/name for self-update ────────────────────────────
-# Priority: GITHUB_REPOSITORY env var (set automatically in GitHub Actions)
-# then parsed from the git remote URL, then a hardcoded fallback.
+# Repo used by --update: Actions env, then the git remote, then the default.
 if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
   REPO_NAME="$GITHUB_REPOSITORY"
 else
-  # Parse SSH (git@github.com:owner/repo.git) or
-  # HTTPS (https://github.com/owner/repo.git) remote URLs.
   _remote_url="$(git config --get remote.origin.url 2>/dev/null || echo "")"
   if [[ "$_remote_url" =~ github\.com[:/]([^/]+/[^/]+?)(\.git)?$ ]]; then
     REPO_NAME="${BASH_REMATCH[1]}"
@@ -53,17 +35,13 @@ echo "Building agentx v${CLEAN_VERSION} (repo: ${REPO_NAME}) ..."
 
 mkdir -p "$DIST_DIR"
 
-# ── 1. Pack the bin/ and src/ directories into a base64-encoded blob ───
-# We stage files in a temporary directory to inject the correct version.
 STAGE_DIR="$(mktemp -d)"
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
-# Copy files to stage
 mkdir -p "$STAGE_DIR/bin"
 cp -R "$REPO_ROOT/src" "$STAGE_DIR/"
 cp -R "$REPO_ROOT/bin/"* "$STAGE_DIR/bin/"
 
-# Inject version and repo name into the staged agentx.sh
 sed \
   -e "s/VERSION=\"dev\"/VERSION=\"${CLEAN_VERSION}\"/g" \
   -e "s|REPO_NAME=\"anoopsg/agent_rules\"|REPO_NAME=\"${REPO_NAME}\"|g" \
@@ -77,14 +55,7 @@ PAYLOAD="$(
   | base64
 )"
 
-# ── 2. Write the self-extracting stub ─────────────────────────────────
-# The stub:
-#   a) decodes the base64 payload into a temp dir
-#   b) makes the extracted scripts executable
-#   c) execs bin/agentx.sh with the original arguments
-#
-# The version comment on line 3 is read by --update
-# to skip redundant downloads.
+# --update reads the agentx-version line to skip same-version downloads.
 cat > "$OUTPUT_FILE" <<STUB_HEADER
 #!/usr/bin/env bash
 # agentx – self-extracting single-file executable
@@ -95,33 +66,24 @@ STUB_HEADER
 cat >> "$OUTPUT_FILE" << 'STUB_EOF'
 set -euo pipefail
 
-# Decode and extract the payload into a temp directory
 _TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$_TMPDIR"' EXIT
 
-# Everything after the __PAYLOAD__ marker is the base64 archive
 _PAYLOAD_START=$(awk '/^__PAYLOAD__$/{print NR+1; exit}' "$0")
 tail -n +"$_PAYLOAD_START" "$0" | base64 -d | tar -xzf - -C "$_TMPDIR"
 
-# Make all extracted shell scripts executable
 find "$_TMPDIR/bin" -name "*.sh" -exec chmod +x {} \;
 
-# Resolve and export the absolute path of this wrapper so that agentx.sh
-# can locate and overwrite itself during a self-update (--update flag).
+# Lets --update overwrite this file.
 _SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
 export AGENTX_SELF_PATH="${_SELF_DIR}/$(basename "$0")"
 
-# Hand off to agentx.sh, forwarding all arguments
 exec "$_TMPDIR/bin/agentx.sh" "$@"
-
-# ── end of stub; payload follows ──────────────────────────────────────
 __PAYLOAD__
 STUB_EOF
 
-# ── 3. Append the base64 payload ──────────────────────────────────────
 printf '%s\n' "$PAYLOAD" >> "$OUTPUT_FILE"
 
-# ── 4. Make the output executable ─────────────────────────────────────
 chmod +x "$OUTPUT_FILE"
 
 echo "Done! Artifact: $OUTPUT_FILE"

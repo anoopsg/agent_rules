@@ -6,7 +6,7 @@ description: Riverpod v3 state-management conventions (code-gen providers, Async
 # Package: Riverpod (v3.x)
 
 - Always use `@riverpod` or `@Riverpod(keepAlive: true)` code generation. No manual providers.
-- Place providers in `state/` or `providers/` within the feature folder. Name: `[feature]_notifier.dart`.
+- Provider location by layer: notifiers in the feature's `state/` (`[feature]_notifier.dart`); repository providers next to the repository in `data/`; client providers next to the client in `infrastructure/`.
 - V3 Naming: `LoginNotifier` class generates `loginProvider` (not `loginNotifierProvider`).
 - Handle `AsyncValue` using `.when`, `.maybeWhen`, or patterns. Avoid `.value!`.
 - Use `ref.invalidate(provider)` or `ref.invalidateSelf()` to trigger re-fetches.
@@ -14,8 +14,8 @@ description: Riverpod v3 state-management conventions (code-gen providers, Async
 - Prefer `AsyncNotifier` for complex async state; `Notifier` for synchronous state.
 - Keep state immutable. Use `copyWith` for state updates.
 - Use `ref.onDispose` for cleaning up resources (controllers, timers).
-- State Location: Keep the state class in the same provider/notifier file. Do
-  not create a separate file for the state class.
+- State Location: Keep a UI-only state class in the same notifier file. If the
+  state is a persisted/domain model, reuse the model from `data/models/`.
 - Always use `dart_mappable` (`@MappableClass()`) for state classes. If
   `dart_mappable` is not used in the codebase, use the package already found
   in the codebase (e.g., Freezed/`@freezed`).

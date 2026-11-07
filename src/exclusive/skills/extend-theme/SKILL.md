@@ -1,9 +1,6 @@
 ---
 name: extend-theme
-description: >
-  Use when adding or changing a design-system color token or typography
-  style in packages/app_ui — covers AppColors/AppTextTheme ThemeExtensions
-  and all four theme variants (light, dark, high-contrast light/dark).
+description: Adds or changes a design-system color token or typography style in packages/app_ui across all four theme variants (light, dark, high-contrast light and dark). Use when a design needs a color or text style the theme doesn't have.
 ---
 
 # Theme Extension Skill
@@ -34,6 +31,10 @@ packages/app_ui/lib/src/
     └── app_theme_high_contrast_dark.dart
 ```
 
+The tree shows the shape, not a live inventory: list the color variants with
+`ls packages/app_ui/lib/src/colors/` and the typography presets with
+`grep -rl "extends AppTextTheme" packages/app_ui/lib/src/typography`.
+
 Access at the call site is always through the `context.$` shorthand
 (`packages/app_ui/lib/src/tokens/app_tokens.dart`), never
 `Theme.of(context).extension<...>()` directly:
@@ -61,6 +62,11 @@ every layer:
    whether an existing token already fits before adding a new one (a new
    token is for a genuinely new semantic role, e.g. `warning`/`onWarning`,
    not a one-off shade).
+4. **Add tokens in pairs**: a surface color comes with its content color
+   (`<x>` + `on<x>`, e.g. `warning` + `onWarning`), added together.
+5. **Confirm with the user** before adding a new token, especially one
+   suggested by a design (see the `design-to-code` skill) — name, role and
+   values for all four variants.
 
 ### Contrast requirement (WCAG AA)
 
@@ -73,16 +79,19 @@ just repeat the same values. See `flutter_accessibility` rule.
 ## 3. Modifying a Typography Style
 
 `AppTextTheme` is a **fixed Material 3 type scale** (`displayLarge` …
-`labelSmall`, plus `any`) — it is not a token map either. Adding a
-new *named* style means adding a field to the base class and updating
-every variant's constructor call, the same fan-out as color tokens above;
-prefer reusing one of the 15 existing named styles unless there's a
-concrete, recurring need.
+`labelSmall`, plus `any`) — it is not a token map either. Typography
+presets subclass it (e.g. `TextThemeNative`); the app picks one in
+`lib/src/utils/theme_utils.dart` and passes the same instance to all four
+theme variants, so typography does not vary per variant. Adding a
+new *named* style means adding a field to the base class (constructor,
+`copyWith`, `lerp`) and updating every preset's constructor call, the same
+fan-out as color tokens above; prefer reusing one of the 15 existing named
+styles (or `any.copyWith`) unless there's a concrete, recurring need.
 
-To change the *value* of an existing style for a given variant, edit only
-that variant's `TextStyle` in the corresponding theme/typography file —
-do not touch the other three variants unless the design actually calls
-for a different value per variant.
+To change the *value* of an existing style, edit its `TextStyle` in the
+preset (e.g. `packages/app_ui/lib/src/typography/text_theme_native.dart`).
+A platform-specific typography is a new preset, returned from
+`lib/src/utils/theme_utils.dart`.
 
 ## 4. Wiring Into `ThemeData`
 
